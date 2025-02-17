@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class AstralBody : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    //
+    [field: SerializeField] public Vector3d position { get; private set; }
+    [field: SerializeField] public double mass { get; private set; }
+    public double mu { get; private set; }
+    
+    public static double G = 6.6743E-11;
+    //
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    private void Start() {
+        mu = mass*G;    
     }
 }
