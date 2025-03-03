@@ -16,9 +16,11 @@ public class CelestialPhysics : MonoBehaviour
     public static double gravitational_constant = 6.6743015e-11;
     [SerializeField] double time_scale = 1.0;
     [SerializeField] float spaceScaleDownFactor = 1000;
+    [SerializeField] Material lineMat;
     
     [field: SerializeField] public bool SOIGizmo { get; private set; } = true;
     [field: SerializeField] public bool VelGizmo { get; private set; } = true;
+    [field: SerializeField] public bool OrbitDisplayDistanceByEditorCam { get; private set; } = true;
     
     static CelestialPhysics singleton;
     //
@@ -28,6 +30,7 @@ public class CelestialPhysics : MonoBehaviour
     }
 
     public double get_time_scale() { return time_scale; }
+    public Material getLineMat() { return lineMat; }
     public float get_spaceDownScale() { return spaceScaleDownFactor; }
     public float get_spaceScale() { return 1 / spaceScaleDownFactor; }
     void set_time_scale(double new_time_scale){

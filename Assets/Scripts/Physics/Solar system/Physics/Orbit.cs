@@ -13,7 +13,7 @@ using UnityEngine;
 /// And this resource: https://orbital-mechanics.space/classical-orbital-elements/orbital-elements-and-the-state-vector.html#orbital-elements-state-vector
 /// 
 /// </summary>
-public class CelestialBody : MonoBehaviour
+public class Orbit : MonoBehaviour
 {
     //
     /*
@@ -61,27 +61,10 @@ public class CelestialBody : MonoBehaviour
     private void Start() {
         update_children_mu();
     }
-    private void FixedUpdate() {
-        if (CelestialPhysics.get_singleton()) scalar = CelestialPhysics.get_singleton().get_spaceScale();
-
-        patch_conics();
-        _physics_process(Time.fixedDeltaTime);
-        
-    }
-
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-
-        scalar =  CelestialPhysics.get_singleton().get_spaceScale();
-
-        if (CelestialPhysics.get_singleton().SOIGizmo) Gizmos.DrawWireSphere(transform.position, (float)get_influence_radius() * scalar);
-
-        if (CelestialPhysics.get_singleton().VelGizmo) Gizmos.DrawLine(transform.position, transform.position + (Vector3)new Vector3d(localVel.x, localVel.z, -localVel.y) * scalar * 100000);
-    }
 
     private void OnValidate() {
         if (transform.parent != null)
-            if (transform.parent.TryGetComponent<CelestialBody>(out var parent))
+            if (transform.parent.TryGetComponent<Orbit>(out var parent))
                 mu = parent.get_children_mu();
 
         if (!Application.isPlaying) {
@@ -92,6 +75,16 @@ public class CelestialBody : MonoBehaviour
 
         scalar = CelestialPhysics.get_singleton().get_spaceScale();
         _physics_process(0);
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+
+        scalar =  CelestialPhysics.get_singleton().get_spaceScale();
+
+        if (CelestialPhysics.get_singleton().SOIGizmo) Gizmos.DrawWireSphere(transform.position, (float)get_influence_radius() * scalar);
+
+        if (CelestialPhysics.get_singleton().VelGizmo) Gizmos.DrawLine(transform.position, transform.position + (Vector3)new Vector3d(localVel.x, localVel.z, -localVel.y) * scalar * 100000);
     }
 
 
@@ -116,6 +109,10 @@ public class CelestialBody : MonoBehaviour
         return multiplier * mu * mu / (specific_angular_momentum * specific_angular_momentum * specific_angular_momentum);
     }
 
+    public Vector3d getLocalPos() {
+        return localPos;
+    }
+
     
     void on_keplerian_parameters_changed() {
         return;
@@ -130,7 +127,7 @@ public class CelestialBody : MonoBehaviour
     // Keplerian parameters.
     double get_mu() { return mu; }
 
-    double get_periapsis() { return periapsis; }
+    public double get_periapsis() { return periapsis; }
 
     double get_eccentricity() { return eccentricity; }
 
@@ -143,7 +140,7 @@ public class CelestialBody : MonoBehaviour
     double get_semi_latus_rectum() { return periapsis * (1.0 + eccentricity); }
     void set_semi_latus_rectum(double new_semi_latus_rectum) { set_periapsis(new_semi_latus_rectum / (1.0 + eccentricity)); }
 
-    double get_semi_major_axis() { return periapsis / (1.0 - eccentricity); }
+    public double get_semi_major_axis() { return periapsis / (1.0 - eccentricity); }
 
     double get_apoapsis()
     { return eccentricity < 1.0 ? periapsis * (1.0 + eccentricity) / (1.0 - eccentricity) : double.PositiveInfinity; }
@@ -175,22 +172,22 @@ public class CelestialBody : MonoBehaviour
             children[i] = transform.GetChild(i);
 
         foreach (Transform child in children) {
-            if (child.TryGetComponent<CelestialBody>(out var childBody)) childBody.set_mu(children_mu);
+            if (child.TryGetComponent<Orbit>(out var childBody)) childBody.set_mu(children_mu);
         }
     }
 
 
     // Spheres of influence for pathced conics or system generation. Just making sure the sun has infinite influence
-    double get_influence_radius() { 
+    public double get_influence_radius() { 
         if (transform.parent)
-            if (transform.parent.TryGetComponent<CelestialBody>(out var parent))
+            if (transform.parent.TryGetComponent<Orbit>(out var parent))
                 return periapsis * Math.Pow(mass / parent.mass, 0.4);
         
         return double.PositiveInfinity;
     }
-    double get_influence_radius_squared() {
+    public double get_influence_radius_squared() {
         if (transform.parent)
-            if (transform.parent.TryGetComponent<CelestialBody>(out var parent))
+            if (transform.parent.TryGetComponent<Orbit>(out var parent))
                 return periapsis * periapsis * Math.Pow(mass / parent.mass, 0.8);
         
         return double.PositiveInfinity;
@@ -424,8 +421,8 @@ public class CelestialBody : MonoBehaviour
 
     void reparent_up()
     {
-        if (transform.parent.TryGetComponent<CelestialBody>(out var parent)) {
-            if (parent.transform.parent.TryGetComponent<CelestialBody>(out var new_parent)) {
+        if (transform.parent.TryGetComponent<Orbit>(out var parent)) {
+            if (parent.transform.parent.TryGetComponent<Orbit>(out var new_parent)) {
 
                 transform.SetParent(new_parent.transform, true);
                 localPos += parent.localPos;
@@ -441,7 +438,7 @@ public class CelestialBody : MonoBehaviour
         { Debug.Log("Can not reparent CelestialBody2D up: current parent is not a CelestialBody2D node."); }
     }
 
-    void reparent_down(CelestialBody new_parent)
+    void reparent_down(Orbit new_parent)
     {
         transform.SetParent(new_parent.transform, true);
         localPos -= new_parent.localPos;
@@ -452,10 +449,10 @@ public class CelestialBody : MonoBehaviour
 
     }
 
-    void patch_conics()
+    public void patch_conics()
     {
         if (transform.parent != null)
-        if (transform.parent.TryGetComponent<CelestialBody>(out var parent))
+        if (transform.parent.TryGetComponent<Orbit>(out var parent))
         {
             // Check if in parent's SOI.
             if (parent.get_influence_radius() < distance){ 
@@ -469,7 +466,7 @@ public class CelestialBody : MonoBehaviour
 
                 foreach (Transform sibling in siblings) {
                     if (sibling != this.transform)
-                        if (sibling.TryGetComponent<CelestialBody>(out CelestialBody siblingBody))
+                        if (sibling.TryGetComponent<Orbit>(out Orbit siblingBody))
                             if ((localPos - siblingBody.localPos).sqrMagnitude < siblingBody.get_influence_radius_squared())
                                 reparent_down(siblingBody);
                 }
@@ -488,17 +485,27 @@ public class CelestialBody : MonoBehaviour
         update_children_mu();
     }
 
-    void _physics_process(double delta)
-    {
-        celestial_physics_process(delta);
-    }
-    void celestial_physics_process(double delta)
+    /// <summary>
+    /// Adds delta to mean anomaly taking into account mean motion
+    /// </summary>
+    /// <param name="delta"></param>
+    public void _physics_process(double delta)
     {
         if (isEnabled)
         {
-            double physics_dt = delta * CelestialPhysics.get_singleton().get_time_scale();
+            double physics_dt = delta;
             set_mean_anomaly(mean_anomaly + physics_dt * mean_motion);
         }
+    }
+
+    /// <summary>
+    /// Straight adds delta to the mean anomaly
+    /// </summary>
+    /// <param name="delta"></param>
+    public void _orbit_process(double delta)
+    {
+        double physics_dt = delta;
+        set_mean_anomaly(mean_anomaly + physics_dt);
     }
 
 }
