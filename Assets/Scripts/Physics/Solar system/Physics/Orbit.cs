@@ -13,6 +13,7 @@ using UnityEngine;
 /// And this resource: https://orbital-mechanics.space/classical-orbital-elements/orbital-elements-and-the-state-vector.html#orbital-elements-state-vector
 /// 
 /// </summary>
+[ExecuteInEditMode]
 public class Orbit : MonoBehaviour
 {
     //
@@ -42,13 +43,15 @@ public class Orbit : MonoBehaviour
     double mean_motion = 0.0;
 
     Vector3d localPos = new();
+    Vector3d worldPos = new();
     Vector3d localVel = new();
 
     Vector3d linear_velocity = new(0.0, 0.0);
 
     bool isEnabled = true;
 
-    float scalar = 1;
+    float scalar = 1 / 1000000;
+    bool isDummy = false;
     //
 
 
@@ -62,7 +65,7 @@ public class Orbit : MonoBehaviour
         update_children_mu();
     }
 
-    private void OnValidate() {
+    public void EditorUpdate() {
         if (transform.parent != null)
             if (transform.parent.TryGetComponent<Orbit>(out var parent))
                 mu = parent.get_children_mu();
@@ -94,12 +97,30 @@ public class Orbit : MonoBehaviour
             Getters, setters, and some misc
     */
 
+    public void init(Orbit from) {
+        this.mass=from.mass;
+        this.mu=from.mu;
+        this.eccentricity=from.eccentricity;
+        this.periapsis=from.periapsis;
+        this.longitude_of_ascending_node=from.longitude_of_ascending_node;
+        this.longitude_of_perigee=from.longitude_of_perigee;
+        this.inclination=from.inclination;
+        this.clockwise=from.clockwise;
+        this.true_anomaly=from.true_anomaly;
+        this.mean_anomaly=from.mean_anomaly;
+        this.localPos = from.localPos;
+        this.localVel = from.localVel;
+        this.transform.parent = from.transform.parent;
+
+        this.keplerian_to_cartesian();
+    }
+
     static Vector3d reference_direction = Vector3d.right;
 
     // Integrals calculation from keplerian parameters.
     double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Math.Sqrt(mu * get_semi_latus_rectum()); }
     double get_specific_mechanical_energy_from_keplerian() { return -mu / (2.0 * get_semi_major_axis()); }
-    double get_mean_motion_from_keplerian()
+    public double get_mean_motion_from_keplerian()
     {
         //double abs_semi_major_axis = Math.abs(get_semi_major_axis());
         //return Math.Sqrt(mu / abs_semi_major_axis) / abs_semi_major_axis;
@@ -112,46 +133,51 @@ public class Orbit : MonoBehaviour
     public Vector3d getLocalPos() {
         return localPos;
     }
+    public Vector3d getWorldPos() {
+        return worldPos;
+    }
 
     
     void on_keplerian_parameters_changed() {
         return;
     }
 
-    bool get_enabled() { return isEnabled; }
+    public bool get_enabled() { return isEnabled; }
 
 
-    double get_mass() { return mass; }
+    public double get_mass() { return mass; }
+
+    public double get_distance() { return distance; }
 
 
     // Keplerian parameters.
-    double get_mu() { return mu; }
+    public double get_mu() { return mu; }
 
     public double get_periapsis() { return periapsis; }
 
-    double get_eccentricity() { return eccentricity; }
+    public double get_eccentricity() { return eccentricity; }
 
-    double get_longitude_of_perigee() { return longitude_of_perigee; }
+    public double get_longitude_of_perigee() { return longitude_of_perigee; }
 
-    bool get_clockwise() { return clockwise; }
+    public bool get_clockwise() { return clockwise; }
 
 
     // Supplementary orbital parameters.
-    double get_semi_latus_rectum() { return periapsis * (1.0 + eccentricity); }
-    void set_semi_latus_rectum(double new_semi_latus_rectum) { set_periapsis(new_semi_latus_rectum / (1.0 + eccentricity)); }
+    public double get_semi_latus_rectum() { return periapsis * (1.0 + eccentricity); }
+    public void set_semi_latus_rectum(double new_semi_latus_rectum) { set_periapsis(new_semi_latus_rectum / (1.0 + eccentricity)); }
 
     public double get_semi_major_axis() { return periapsis / (1.0 - eccentricity); }
 
-    double get_apoapsis()
+    public double get_apoapsis()
     { return eccentricity < 1.0 ? periapsis * (1.0 + eccentricity) / (1.0 - eccentricity) : double.PositiveInfinity; }
 
 
     // Anomalies.
-    double get_true_anomaly() { return true_anomaly; }
+    public double get_true_anomaly() { return true_anomaly; }
 
-    double get_mean_anomaly() { return mean_anomaly; }
+    public double get_mean_anomaly() { return mean_anomaly; }
 
-    double get_true_anomaly_at_distance(double _distance)
+    public double get_true_anomaly_at_distance(double _distance)
     {
         // TODO: optimize: get_apoapsis and get_semi_latus_rectum can be combined.
         return ((_distance >= periapsis) && (_distance <= get_apoapsis())) ?
@@ -161,7 +187,7 @@ public class Orbit : MonoBehaviour
 
 
     // Get gravitational parameter used by children.
-    double get_children_mu()
+    public double get_children_mu()
     { return CelestialPhysics.gravitational_constant * mass; }
 
     void update_children_mu() {
@@ -177,23 +203,23 @@ public class Orbit : MonoBehaviour
     }
 
 
-    // Spheres of influence for pathced conics or system generation. Just making sure the sun has infinite influence
-    public double get_influence_radius() { 
+    // Spheres of influence for patched conics. Just making sure the sun has infinite influence
+    public double get_influence_radius() {
+        if (isDummy) return 0;
         if (transform.parent)
             if (transform.parent.TryGetComponent<Orbit>(out var parent))
-                return periapsis * Math.Pow(mass / parent.mass, 0.4);
+                return mass < 100000 ? 0 : periapsis * Math.Pow(mass / parent.mass, 0.4);
         
         return double.PositiveInfinity;
     }
     public double get_influence_radius_squared() {
+        if (isDummy) return 0;
         if (transform.parent)
             if (transform.parent.TryGetComponent<Orbit>(out var parent))
-                return periapsis * periapsis * Math.Pow(mass / parent.mass, 0.8);
+                return mass < 100000 ? 0 :  periapsis * periapsis * Math.Pow(mass / parent.mass, 0.8);
         
         return double.PositiveInfinity;
     }
-    double get_Hill_radius()              { return periapsis * Math.Pow(get_children_mu() / (3.0 * mu), 1.0 / 3.0); }
-    double get_Hill_radius_squared()      { return periapsis * periapsis * Math.Pow(get_children_mu() / (3.0 * mu), 2.0 / 3.0); }
 
 
 
@@ -266,7 +292,7 @@ public class Orbit : MonoBehaviour
     }
 
 
-    void set_true_anomaly(double new_true_anomaly)
+    public void set_true_anomaly(double new_true_anomaly)
     {
         if (eccentricity < 1.0) { new_true_anomaly = Math.IEEERemainder(new_true_anomaly, 2.0 * Math.PI); }
         else
@@ -283,7 +309,7 @@ public class Orbit : MonoBehaviour
     }
 
 
-    void set_mean_anomaly(double new_mean_anomaly)
+    public void set_mean_anomaly(double new_mean_anomaly)
     {
         if (eccentricity < 1.0) { new_mean_anomaly = Math.IEEERemainder(new_mean_anomaly, 2.0 * Math.PI); }
         mean_anomaly = new_mean_anomaly;
@@ -405,6 +431,18 @@ public class Orbit : MonoBehaviour
     // Conversion between local (on orbital plane) and global cartesian coordinates.
     void local_cartesian_to_cartesian() {
         transform.localPosition = (Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * scalar);
+        
+        worldPos = localPos;
+        bool checkingUp = true;
+        Orbit checkingOrbit = this;
+        while (checkingUp) {
+            if (checkingOrbit.transform.parent.TryGetComponent<Orbit>(out var parent)) {
+                worldPos += parent.localPos;
+
+                checkingOrbit = parent;
+            }
+            else checkingUp = false;
+        }
 
         linear_velocity = localVel;
     }
@@ -449,14 +487,15 @@ public class Orbit : MonoBehaviour
 
     }
 
-    public void patch_conics()
+    public bool patch_conics()
     {
         if (transform.parent != null)
         if (transform.parent.TryGetComponent<Orbit>(out var parent))
         {
             // Check if in parent's SOI.
             if (parent.get_influence_radius() < distance){ 
-                reparent_up(); 
+                reparent_up();
+                return true;
             }
             else { // Check siblings.
 
@@ -467,11 +506,15 @@ public class Orbit : MonoBehaviour
                 foreach (Transform sibling in siblings) {
                     if (sibling != this.transform)
                         if (sibling.TryGetComponent<Orbit>(out Orbit siblingBody))
-                            if ((localPos - siblingBody.localPos).sqrMagnitude < siblingBody.get_influence_radius_squared())
+                            if ((localPos - siblingBody.localPos).sqrMagnitude < siblingBody.get_influence_radius_squared()){
                                 reparent_down(siblingBody);
+                                return true;
+                            }
                 }
             }
         }
+
+        return false;
     }
 
 
@@ -491,6 +534,7 @@ public class Orbit : MonoBehaviour
     /// <param name="delta"></param>
     public void _physics_process(double delta)
     {
+        scalar = CelestialPhysics.get_singleton().get_spaceScale();
         if (isEnabled)
         {
             double physics_dt = delta;
@@ -504,6 +548,7 @@ public class Orbit : MonoBehaviour
     /// <param name="delta"></param>
     public void _orbit_process(double delta)
     {
+        scalar = CelestialPhysics.get_singleton().get_spaceScale();
         double physics_dt = delta;
         set_mean_anomaly(mean_anomaly + physics_dt);
     }

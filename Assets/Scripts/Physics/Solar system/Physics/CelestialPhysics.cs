@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -17,17 +19,141 @@ public class CelestialPhysics : MonoBehaviour
     [SerializeField] double time_scale = 1.0;
     [SerializeField] float spaceScaleDownFactor = 1000;
     [SerializeField] Material lineMat;
+
+    [field: SerializeField] public int patchDepthLimit { get; private set; } = 5;
     
     [field: SerializeField] public bool SOIGizmo { get; private set; } = true;
     [field: SerializeField] public bool VelGizmo { get; private set; } = true;
-    [field: SerializeField] public bool OrbitDisplayDistanceByEditorCam { get; private set; } = true;
+    [field: SerializeField] public GameObject blankObject;
+    
+    /// <summary>
+    /// This is the object everything orbits. This object will not itself do any orbiting
+    /// </summary>
+    [SerializeField] private OrbitManager rootCelestialBody;
+    public CelestialObject rootCelestialObject { get; private set; }
     
     static CelestialPhysics singleton;
+
+    public struct CelestialObject
+    {
+        public OrbitManager orbitManager;
+        public List<CelestialObject> children;
+    }
     //
 
     private void Awake() {
         singleton = this;
+
+        UpdateCelestialTree();
     }
+
+    private void FixedUpdate() {
+        ProcessCelestialChildren(rootCelestialObject);
+    }
+
+    private void Update() { // Editor shenanigans
+        if (!Application.isPlaying){
+            singleton = this;
+            UpdateCelestialTree();
+            void CheckChildrenRecurs(CelestialObject obj){
+                foreach (var child in obj.children)
+                {
+                    CheckChildrenRecurs(child); 
+                    child.orbitManager.EditorUpdate();
+                }
+            }
+
+            CheckChildrenRecurs(rootCelestialObject);
+        }
+    }
+
+
+
+
+    /*
+        Running the simulation
+    */
+    
+    public void UpdateCelestialTree() {
+        rootCelestialObject = new() {
+            orbitManager = rootCelestialBody,
+            children = new()
+        };
+        
+        UpdateCelestialChildren(rootCelestialObject);
+
+        SetupCelestialChildren(rootCelestialObject);
+
+    }
+    private void UpdateCelestialChildren(CelestialObject parent) {
+        Transform[] children = new Transform[parent.orbitManager.transform.childCount];
+        for (int i = 0; i < children.Length; i++)
+            children[i] = parent.orbitManager.transform.GetChild(i);
+
+        foreach (Transform child in children) {
+            if (child.TryGetComponent<OrbitManager>(out var childOrbit)) {
+                CelestialObject childCelestialObject = new()
+                {
+                    orbitManager = childOrbit,
+                    children = new()
+                };
+
+                UpdateCelestialChildren(childCelestialObject);
+
+                parent.children.Add(childCelestialObject);
+            }
+        }
+    }
+    private void LogChildrenRecurs(CelestialObject obj) {
+        Debug.Log(obj.orbitManager);
+
+        foreach (var child in obj.children)
+        {
+            LogChildrenRecurs(child);
+        }
+    }
+
+    private void SetupCelestialChildren(CelestialObject obj) {
+        foreach (var child in obj.children) {
+            
+            child.orbitManager.Setup();
+
+            SetupCelestialChildren(child);
+
+        }
+    }
+    private void ProcessCelestialChildren(CelestialObject obj) {
+        foreach (var child in obj.children) {
+
+            ProcessCelestialChildren(child);
+            
+            child.orbitManager.ProcessOrbit();
+            
+        }
+    }
+    public List<Orbit> GetBigCelestialBody() {
+        List<Orbit> orbits = new();
+
+        void CheckChildrenRecurs(CelestialObject obj){
+            foreach (var child in obj.children)
+            {
+                CheckChildrenRecurs(child); 
+                if (child.orbitManager.orbit.get_influence_radius() > 10) orbits.Add(child.orbitManager.orbit);
+            }
+        }
+
+        CheckChildrenRecurs(rootCelestialObject);
+
+        return orbits;
+    }
+
+
+
+
+
+    /*
+            Getters n shit
+    */
 
     public double get_time_scale() { return time_scale; }
     public Material getLineMat() { return lineMat; }
@@ -39,7 +165,14 @@ public class CelestialPhysics : MonoBehaviour
     
     public static CelestialPhysics get_singleton() { return singleton; }
 
-    // Conics math.
+    
+    
+    
+    
+    /*
+            Conics maths
+    */
+
     public static double true_anomaly_to_eccentric_anomaly(double true_anomaly, double eccentricity)
     {
         double beta = eccentricity / (1.0 + Math.Sqrt(1.0 - eccentricity * eccentricity));
