@@ -9,7 +9,7 @@ public class AutoCentre : MonoBehaviour
 {
     [SerializeField] UIDocument ui;
     public Transform[] objectList { get; private set; }
-    [SerializeField] int focus = 3;
+    public int focus = 3;
     public string focusName;
     
     private void Awake() {
