@@ -27,15 +27,15 @@ public class OrbitManager : MonoBehaviour
     public void EditorUpdate() { // for drawing orbits in editor
         if (!Application.isPlaying && transform.parent.TryGetComponent<Orbit>(out var a)){
             Setup();
-            DrawOrbit();
             orbit.EditorUpdate();
+            DrawOrbit();
         }
     }
     private void Start() {
         Setup();
     }
     private void OnValidate() {
-        CelestialPhysics.get_singleton().Validate();    
+        if(!Application.isPlaying) CelestialPhysics.get_singleton().Validate();    
     }
     
 
@@ -98,8 +98,7 @@ public class OrbitManager : MonoBehaviour
         double start = orbit.get_true_anomaly();
         double step = start;
 
-        double orbitPreiod = 2 * Mathd.PI / orbit.get_mean_motion_from_keplerian();
-        double startTime = (Mathd.Floor(CelestialPhysics.get_singleton().time / orbitPreiod) * orbitPreiod) + orbit.GetOrbitStartTime();
+        double startTime = CelestialPhysics.get_singleton().time;
         
         orbitPoints = new();
         Vector3d startLocalPos = orbit.getLocalPos();

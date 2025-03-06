@@ -15,7 +15,7 @@ public class AutoCentre : MonoBehaviour
     private void Awake() {
         UpdateObjectList();
 
-        ui.rootVisualElement.Q<TextField>().dataSource = this;
+        ui.rootVisualElement.Q<TextField>("Focus").dataSource = this;
         ui.rootVisualElement.Q<Button>("Previous").clickable.clicked += () => {
             if(focus > 0) focus--; 
         };

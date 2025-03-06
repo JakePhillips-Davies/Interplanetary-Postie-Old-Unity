@@ -61,6 +61,9 @@ public class Orbit : MonoBehaviour
 
     private void Start() {
         update_children_mu();
+        if (transform.parent.TryGetComponent<Orbit>(out var parent)) mu = parent.get_children_mu();
+        orbitStartTime = CelestialPhysics.get_singleton().time;
+        _physics_process(CelestialPhysics.get_singleton().time);
     }
 
     public void EditorUpdate() {
@@ -75,7 +78,7 @@ public class Orbit : MonoBehaviour
         }
 
         scalar = CelestialPhysics.get_singleton().get_spaceScale();
-        _physics_process(0);
+        _physics_process(CelestialPhysics.get_singleton().time);
     }
 
     private void OnDrawGizmos() {
@@ -89,7 +92,7 @@ public class Orbit : MonoBehaviour
     }
 
     private void OnValidate() {
-        CelestialPhysics.get_singleton().Validate();    
+        if(!Application.isPlaying) CelestialPhysics.get_singleton().Validate();    
     }
 
 
@@ -336,7 +339,7 @@ public class Orbit : MonoBehaviour
     // }
 
     Vector3d get_linear_velocity() { return linear_velocity; }
-    void set_linear_velocity(Vector3d new_linear_velocity)
+    public void set_linear_velocity(Vector3d new_linear_velocity)
     {
         linear_velocity = new_linear_velocity;
         
@@ -410,7 +413,7 @@ public class Orbit : MonoBehaviour
         return (localPos, localVel);
     }
 
-    void cartesian_to_keplerian()
+    public void cartesian_to_keplerian()
     {
         // Updating global cartesian coordinates.
         // (must be implemented in derived classes)

@@ -21,8 +21,12 @@ public class CelestialPhysics : MonoBehaviour
     [SerializeField] private UIDocument ui;
 
     public static double gravitational_constant = 6.6743015e-11;
+    /// <summary>
+    /// !!!!!!!!!!!!!STILL SQUARED FOR TESTING PURPOSE!!!!!!!!!!
+    /// </summary>
     [SerializeField] double time_scale = 1.0;
-    public double time {get; private set;} = 0;
+    public String timeScaleString;
+    public double time {get; private set;} = 100;
     [SerializeField] float spaceScaleDownFactor = 1000;
     [SerializeField] Material lineMat;
 
@@ -47,21 +51,24 @@ public class CelestialPhysics : MonoBehaviour
     }
     //
 
-    private void Awake() {
+    private void Start() {
         singleton = this;
 
         UpdateCelestialTree();
 
         ui.rootVisualElement.Q<Slider>().dataSource = this;
+        
+        time = 100;
     }
 
     private void FixedUpdate() {
+        time += Time.fixedDeltaTime * get_time_scale() * get_time_scale();
+        timeScaleString = "Time scale: " + get_time_scale() * get_time_scale();
         ProcessCelestialPhysics();
-        time += Time.fixedDeltaTime * get_time_scale();
     }
 
     private void OnValidate() { // Editor shenanigans
-        Validate();
+        if(!Application.isPlaying) Validate();
     }
     public void Validate() {
         singleton = this;
@@ -208,8 +215,8 @@ public class CelestialPhysics : MonoBehaviour
 
     public static double mean_anomaly_to_true_anomaly(double mean_anomaly, double eccentricity, double true_anomaly_hint)
     {
-        if (double.IsNaN(true_anomaly_hint)) true_anomaly_hint = 0;
-        if (double.IsNaN(mean_anomaly)) return true_anomaly_hint;
+        if (double.IsNaN(true_anomaly_hint)) {Debug.Log("True anomaly hint is NaN"); true_anomaly_hint = 0;}
+        if (double.IsNaN(mean_anomaly)) {Debug.Log("Mean anomaly is NaN"); return true_anomaly_hint;}
 
         double tolerance = 0.00000001;
         int max_iter = 100;
