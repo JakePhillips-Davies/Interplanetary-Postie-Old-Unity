@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -22,7 +20,8 @@ public class OrbitManager : MonoBehaviour
 
     LineRenderer lineRenderer;
     List<Orbit> celestialBodies;
-    Orbit clone;
+
+    int patchDepth;
     //
 
     public void EditorUpdate() { // for drawing orbits in editor
@@ -35,6 +34,9 @@ public class OrbitManager : MonoBehaviour
     private void Start() {
         Setup();
     }
+    private void OnValidate() {
+        CelestialPhysics.get_singleton().Validate();    
+    }
     
 
     public void Setup() {
@@ -42,16 +44,28 @@ public class OrbitManager : MonoBehaviour
         orbit = transform.GetComponent<Orbit>();
     }
     public void DrawOrbit() {
-        //if (patching) GetOrbitPointsPatched();
-        //else 
-            GetOrbitPoints();
+        if (patching) GetOrbitPointsPatched();
+        else GetOrbitPoints();
         DrawOrbitPoints();
     }
-    public void ProcessOrbit() {
+    public void ProcessOrbit(double time) {
+        orbit._physics_process(time);
         if (patching) orbit.patch_conics();
-        orbit._physics_process(Time.fixedDeltaTime * CelestialPhysics.get_singleton().get_time_scale());
 
         DrawOrbit();
+    }
+
+    /// <summary>
+    /// Intended for use when predicting orbit lines
+    /// </summary>
+    /// <param name="time"></param>
+    public void ProcessOrbitGhost(double time) {
+        orbit._physics_process(time, false);
+        if (patching) 
+            if (orbit.patch_conics()) {
+                orbit.SetOrbitStartTime(time);
+                patchDepth++;
+            }
     }
 
 
@@ -61,140 +75,133 @@ public class OrbitManager : MonoBehaviour
     /*
             Draw those orbits!
     */
+    private void GetOrbitPointsPatched() {
+        if (this.orbit.get_eccentricity() < 0) return;
 
-    private bool DrawPatching(Orbit orbit, ref double startingTrueAnomaly) {
-        if (orbit.patch_conics()){
-            return true;
-        }
-        return false;
-    }
+        Orbit.OrbitInfo orbitInfo = new(){
+            mass = orbit.get_mass(),
+            mu = orbit.get_mu(),
+            periapsis = orbit.get_periapsis(),
+            eccentricity = orbit.get_eccentricity(),
+            longitude_of_ascending_node = orbit.get_longitude_of_ascending_node(),
+            longitude_of_perigee = orbit.get_longitude_of_perigee(),
+            inclination = orbit.get_inclination(),
+            clockwise = orbit.get_clockwise(),
+            true_anomaly = orbit.get_true_anomaly(),
+            mean_anomaly = orbit.get_mean_anomaly(),
+            orbitStartTime = orbit.GetOrbitStartTime(),
+            localPos = orbit.getLocalPos(),
+            localVel = orbit.getLocalVel(),
+            parent = orbit.transform.parent
+        };
 
-    // private void GetOrbitPointsPatched() {
-    //     if (this.orbit.get_eccentricity() < 0) return;
+        double start = orbit.get_true_anomaly();
+        double step = start;
 
-    //     clone.init(this.orbit);
-
-    //     double startingTrueAnomaly = clone.get_true_anomaly();
-    //     double totalStepped = 0;
+        double orbitPreiod = 2 * Mathd.PI / orbit.get_mean_motion_from_keplerian();
+        double startTime = (Mathd.Floor(CelestialPhysics.get_singleton().time / orbitPreiod) * orbitPreiod) + orbit.GetOrbitStartTime();
         
-    //     orbitPoints = new();
-    //     Vector3d startLocalPos = clone.getLocalPos();
-    //     Orbit parent = clone.parent;
-    //     orbitPoints.Add(Vector3.zero);
+        orbitPoints = new();
+        Vector3d startLocalPos = orbit.getLocalPos();
 
-    //     int depth = 1;
+        Orbit parent = orbit.transform.parent.GetComponent<Orbit>();
 
-    //     while (depth <= CelestialPhysics.get_singleton().patchDepthLimit)
-    //     {
-    //         if (clone.get_eccentricity() < 1) {
+        patchDepth = 1;
+
+        while (patchDepth <= CelestialPhysics.get_singleton().patchDepthLimit)
+        {   
+
+            if (orbit.get_eccentricity() < 1) {
     
-    //             double trueAnomalyStepSize = (2 * Math.PI / orbitDetail) / clone.get_mean_motion_from_keplerian();
+                double stepSize = (2 * Mathd.PI / orbitDetail) / orbit.get_mean_motion_from_keplerian();
 
-    //             for(int i = 0; i < orbitDetail; i++) {
+                for(int i = 0; i <= orbitDetail; i++) {
+
+                    int currentPatch = patchDepth;
+
+                    CelestialPhysics.get_singleton().ProcessCelestialPhysics(startTime + step);
+                    step += stepSize;
+
+                    if(patchDepth != currentPatch) { break; }
+
+                    Vector3d relativeToOGParent = orbit.getWorldPos() - parent.getWorldPos();
+                    Vector3d localPos = relativeToOGParent - startLocalPos;
+                    orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
     
-    //                 if (patching) 
-    //                     if (DrawPatching(clone, ref startingTrueAnomaly)) {
-    //                         depth++;
-    //                         break;
-    //                     }
+                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysics.get_singleton().patchDepthLimit;
 
-    //                 celestialBodies.ForEach(delegate(Orbit body) {
-    //                     body._physics_process(trueAnomalyStepSize);
-    //                 });
-    
-    //                 clone._physics_process(trueAnomalyStepSize);
-    //                 totalStepped += trueAnomalyStepSize;
-
-    //                 Vector3d posRelativeToStartParent = clone.getWorldPos() - parent.getWorldPos();
-    //                 Vector3d localPos = posRelativeToStartParent - startLocalPos;
-    //                 orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
-    
-    //                 if (i == (orbitDetail - 1)) depth = CelestialPhysics.get_singleton().patchDepthLimit + 10;
-
-    //             }
+                }
         
     
-    //         } else {
+            } else {
     
-    // 			double endTrueAnomaly = Math.Acos( -1 / clone.get_eccentricity());
-    // 			double range = endTrueAnomaly - startingTrueAnomaly;
-    // 			double trueAnomalyStepSize = (range / (orbitDetail - 1)) / clone.get_mean_motion_from_keplerian();
+    			double endTrueAnomaly = Mathd.Acos( -1 / orbit.get_eccentricity());
+    			double range = endTrueAnomaly - start;
+    			double stepSize = (range / (orbitDetail - 1)) / orbit.get_mean_motion_from_keplerian();
     
-    // 			for (int i = 0; i < orbitDetail; i++) {
-    
-    //                 if (patching) 
-    //                     if (DrawPatching(clone, ref startingTrueAnomaly)) {
-    //                         depth++;
-    //                         break;
-    //                     }
+    			for (int i = 0; i < orbitDetail; i++) {
 
-    //                 celestialBodies.ForEach(delegate(Orbit body) {
-    //                     body._physics_process(trueAnomalyStepSize);
-    //                 });
-    
-    //                 clone._physics_process(trueAnomalyStepSize);
-    //                 totalStepped += trueAnomalyStepSize;
-        
-    //                 Vector3d posRelativeToStartParent = clone.getWorldPos() - parent.getWorldPos();
-    //                 Vector3d localPos = posRelativeToStartParent - startLocalPos;
-    //                 orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+                    CelestialPhysics.get_singleton().ProcessCelestialPhysics(startTime + step);
+                    step += stepSize;
 
-    //                 if (i == (orbitDetail - 1)) depth = CelestialPhysics.get_singleton().patchDepthLimit + 10;
+                    Vector3d relativeToOGParent = orbit.getWorldPos() - parent.getWorldPos();
+                    Vector3d localPos = relativeToOGParent - startLocalPos;
+                    orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+
+                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysics.get_singleton().patchDepthLimit;
     			
-    //             }
-    //         }
-    //     }
+                }
+            }
+        }
 
-    //     celestialBodies.ForEach(delegate(Orbit body) {
-    //         body._physics_process(-totalStepped);
-    //     });
+        CelestialPhysics.get_singleton().ProcessCelestialPhysics(CelestialPhysics.get_singleton().time);
 
-    // }
+        orbit.InitialiseFromOrbitInfo(orbitInfo);
+
+
+    }
 
     private void GetOrbitPoints() {
         if (this.orbit.get_eccentricity() < 0) return;
 
-        double startingTrueAnomaly = orbit.get_true_anomaly();
-        double trueAnomaly = startingTrueAnomaly;
+        double start = orbit.get_true_anomaly();
+        double step = start;
         
         orbitPoints = new();
         Vector3d startLocalPos = orbit.getLocalPos();
-        orbitPoints.Add(Vector3.zero);
 
 
         if (orbit.get_eccentricity() < 1) {
 
-            double trueAnomalyStepSize = 2 * Math.PI / orbitDetail;
+            double stepSize = 2 * Mathd.PI / orbitDetail;
 
             for(int i = 0; i < orbitDetail; i++) {
 
-                trueAnomaly += trueAnomalyStepSize;
-                orbit.set_true_anomaly(trueAnomaly);
-
-                Vector3d localPos = orbit.getLocalPos() - startLocalPos;
+                Vector3d localPos = orbit.GetCartesianAtTrueAnomaly(start + step, false).localPos - startLocalPos;
                 orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+
+                step += stepSize;
 
             }
 
 
         } else {
 
-            double endTrueAnomaly = Math.Acos( -1 / orbit.get_eccentricity());
-            double range = endTrueAnomaly - startingTrueAnomaly;
-            double trueAnomalyStepSize = range / (orbitDetail - 1);
+            double end = Mathd.Acos( -1 / orbit.get_eccentricity());
+            double range = end - start;
+            double stepSize = range / (orbitDetail - 1);
 
             for (int i = 0; i < orbitDetail; i++) {
-
-                if (i < (orbitDetail - 2)) trueAnomaly += trueAnomalyStepSize;
-                orbit.set_true_anomaly(trueAnomaly);
-
-                Vector3d localPos = orbit.getLocalPos() - startLocalPos;
+                
+                Vector3d localPos = orbit.GetCartesianAtTrueAnomaly(start + step, false).localPos - startLocalPos;
                 orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+
+                if (i < (orbitDetail - 2)) step += stepSize;
             
             }
         }
 
-        orbit.set_true_anomaly(startingTrueAnomaly);
+        orbit._physics_process(CelestialPhysics.get_singleton().time);
 
     }
 
@@ -212,7 +219,7 @@ public class OrbitManager : MonoBehaviour
         lineRenderer.material = CelestialPhysics.get_singleton().getLineMat();
         lineRenderer.shadowCastingMode = ShadowCastingMode.Off;
         lineRenderer.enabled = true;
-        lineRenderer.loop = false;
+        lineRenderer.loop = !patching;
 
         lineRenderer.positionCount = orbitPoints.Count;
         lineRenderer.SetPositions(orbitPoints.ToArray());

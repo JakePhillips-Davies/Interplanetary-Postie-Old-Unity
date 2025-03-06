@@ -338,6 +338,10 @@ namespace UnityEngine {
             return num;
         }
 
+        public static double IEEERemainder(double x, double y) {
+            return x - (y * Mathd.Round(x / y));
+        }
+
         internal static bool LineIntersection(Vector2d p1, Vector2d p2, Vector2d p3, Vector2d p4, ref Vector2d result) {
             double num1 = p2.x - p1.x;
             double num2 = p2.y - p1.y;

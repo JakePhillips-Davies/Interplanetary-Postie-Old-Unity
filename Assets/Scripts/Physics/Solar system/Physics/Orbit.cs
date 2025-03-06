@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -36,6 +34,7 @@ public class Orbit : MonoBehaviour
     double true_anomaly = 0.0;
     double mean_anomaly = 0.0;
     double distance = 0.0;
+    double orbitStartTime = 0;
 
     // Integrals.
     double specific_angular_momentum = 0.0;
@@ -51,7 +50,6 @@ public class Orbit : MonoBehaviour
     bool isEnabled = true;
 
     float scalar = 1 / 1000000;
-    bool isDummy = false;
     //
 
 
@@ -90,14 +88,33 @@ public class Orbit : MonoBehaviour
         if (CelestialPhysics.get_singleton().VelGizmo) Gizmos.DrawLine(transform.position, transform.position + (Vector3)new Vector3d(localVel.x, localVel.z, -localVel.y) * scalar * 100000);
     }
 
+    private void OnValidate() {
+        CelestialPhysics.get_singleton().Validate();    
+    }
+
 
 
 
     /*
             Getters, setters, and some misc
     */
-
-    public void init(Orbit from) {
+    public struct OrbitInfo {
+        public double mass;
+        public double mu;
+        public double eccentricity;
+        public double periapsis;
+        public double longitude_of_ascending_node;
+        public double longitude_of_perigee;
+        public double inclination;
+        public bool clockwise;
+        public double true_anomaly;
+        public double mean_anomaly;
+        public double orbitStartTime;
+        public Vector3d localPos;
+        public Vector3d localVel;
+        public Transform parent;
+    } 
+    public void InitialiseFromOrbitInfo(OrbitInfo from) {
         this.mass=from.mass;
         this.mu=from.mu;
         this.eccentricity=from.eccentricity;
@@ -108,25 +125,27 @@ public class Orbit : MonoBehaviour
         this.clockwise=from.clockwise;
         this.true_anomaly=from.true_anomaly;
         this.mean_anomaly=from.mean_anomaly;
+        this.orbitStartTime=from.orbitStartTime;
         this.localPos = from.localPos;
         this.localVel = from.localVel;
-        this.transform.parent = from.transform.parent;
-
-        this.keplerian_to_cartesian();
+        this.transform.parent = from.parent;
+        
+        _physics_process(CelestialPhysics.get_singleton().time);
+        local_cartesian_to_cartesian();
     }
 
     static Vector3d reference_direction = Vector3d.right;
 
     // Integrals calculation from keplerian parameters.
-    double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Math.Sqrt(mu * get_semi_latus_rectum()); }
+    double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Mathd.Sqrt(mu * get_semi_latus_rectum()); }
     double get_specific_mechanical_energy_from_keplerian() { return -mu / (2.0 * get_semi_major_axis()); }
     public double get_mean_motion_from_keplerian()
     {
-        //double abs_semi_major_axis = Math.abs(get_semi_major_axis());
-        //return Math.Sqrt(mu / abs_semi_major_axis) / abs_semi_major_axis;
+        //double abs_semi_major_axis = Mathd.abs(get_semi_major_axis());
+        //return Mathd.Sqrt(mu / abs_semi_major_axis) / abs_semi_major_axis;
 
-        double multiplier = (eccentricity == 1.0) ? 1.0 : Math.Abs(1.0 - eccentricity * eccentricity);
-        multiplier = Math.Sqrt(multiplier * multiplier * multiplier);
+        double multiplier = (eccentricity == 1.0) ? 1.0 : Mathd.Abs(1.0 - eccentricity * eccentricity);
+        multiplier = Mathd.Sqrt(multiplier * multiplier * multiplier);
         return multiplier * mu * mu / (specific_angular_momentum * specific_angular_momentum * specific_angular_momentum);
     }
 
@@ -137,10 +156,16 @@ public class Orbit : MonoBehaviour
         return worldPos;
     }
 
+    public Vector3d getLocalVel() {
+        return localVel;
+    }
     
     void on_keplerian_parameters_changed() {
         return;
     }
+
+    public double GetOrbitStartTime() { return orbitStartTime; }
+    public void SetOrbitStartTime(double time) { orbitStartTime = time; }
 
     public bool get_enabled() { return isEnabled; }
 
@@ -154,17 +179,21 @@ public class Orbit : MonoBehaviour
     public double get_mu() { return mu; }
 
     public double get_periapsis() { return periapsis; }
+    
+    public double get_inclination() { return inclination; }
 
     public double get_eccentricity() { return eccentricity; }
 
     public double get_longitude_of_perigee() { return longitude_of_perigee; }
+    
+    public double get_longitude_of_ascending_node() { return longitude_of_ascending_node; }
 
     public bool get_clockwise() { return clockwise; }
 
 
     // Supplementary orbital parameters.
     public double get_semi_latus_rectum() { return periapsis * (1.0 + eccentricity); }
-    public void set_semi_latus_rectum(double new_semi_latus_rectum) { set_periapsis(new_semi_latus_rectum / (1.0 + eccentricity)); }
+    // public void set_semi_latus_rectum(double new_semi_latus_rectum) { set_periapsis(new_semi_latus_rectum / (1.0 + eccentricity)); }
 
     public double get_semi_major_axis() { return periapsis / (1.0 - eccentricity); }
 
@@ -181,7 +210,7 @@ public class Orbit : MonoBehaviour
     {
         // TODO: optimize: get_apoapsis and get_semi_latus_rectum can be combined.
         return ((_distance >= periapsis) && (_distance <= get_apoapsis())) ?
-            Math.Acos((get_semi_latus_rectum() / _distance - 1.0) / eccentricity) :
+            Mathd.Acos((get_semi_latus_rectum() / _distance - 1.0) / eccentricity) :
             double.NaN;
     }
 
@@ -205,18 +234,16 @@ public class Orbit : MonoBehaviour
 
     // Spheres of influence for patched conics. Just making sure the sun has infinite influence
     public double get_influence_radius() {
-        if (isDummy) return 0;
         if (transform.parent)
             if (transform.parent.TryGetComponent<Orbit>(out var parent))
-                return mass < 100000 ? 0 : periapsis * Math.Pow(mass / parent.mass, 0.4);
+                return mass < 100000 ? 0 : periapsis * Mathd.Pow(mass / parent.mass, 0.4);
         
         return double.PositiveInfinity;
     }
     public double get_influence_radius_squared() {
-        if (isDummy) return 0;
         if (transform.parent)
             if (transform.parent.TryGetComponent<Orbit>(out var parent))
-                return mass < 100000 ? 0 :  periapsis * periapsis * Math.Pow(mass / parent.mass, 0.8);
+                return mass < 100000 ? 0 :  periapsis * periapsis * Mathd.Pow(mass / parent.mass, 0.8);
         
         return double.PositiveInfinity;
     }
@@ -231,93 +258,82 @@ public class Orbit : MonoBehaviour
 
     void set_mass(double new_mass)
     {
-        mass = Math.Max(new_mass, 0.0);
+        mass = Mathd.Max(new_mass, 0.0);
         update_children_mu();
     }
 
 
     void set_mu(double new_mu)
     {
-        mu = Math.Max(new_mu, 0.0);
-        keplerian_to_cartesian();
-        on_keplerian_parameters_changed();
+        mu = Mathd.Max(new_mu, 0.0);
+        _physics_process(CelestialPhysics.get_singleton().time);
+        on_keplerian_parameters_changed();  
     }
 
-    void set_periapsis(double new_periapsis)
-    {
-        periapsis = Math.Max(new_periapsis, 0.0);
-        keplerian_to_cartesian();
-        on_keplerian_parameters_changed();
-    }
+    // void set_periapsis(double new_periapsis)
+    // {
+    //     periapsis = Mathd.Max(new_periapsis, 0.0);
+    //     keplerian_to_cartesian();
+    //     on_keplerian_parameters_changed();
+    // }
 
-    void set_eccentricity(double new_eccentricity)
-    {
-        eccentricity = Math.Max(new_eccentricity, 0.0);
+    // void set_eccentricity(double new_eccentricity)
+    // {
+    //     eccentricity = Mathd.Max(new_eccentricity, 0.0);
 
-        // Reset anomalies, as they are invalidated when eccentricity changes.
-        true_anomaly = 0.0;
-        mean_anomaly = 0.0;
+    //     // Reset anomalies, as they are invalidated when eccentricity changes.
+    //     true_anomaly = 0.0;
+    //     mean_anomaly = 0.0;
 
-        keplerian_to_cartesian();
-        on_keplerian_parameters_changed();
-    }
+    //     keplerian_to_cartesian();
+    //     on_keplerian_parameters_changed();
+    // }
 
-    void set_longitude_of_perigee(double new_longitude_of_perigee)
-    {
-        longitude_of_perigee = Math.IEEERemainder(new_longitude_of_perigee, 2.0 * Math.PI);
-        keplerian_to_cartesian(); // Do not update the integrals, they are the same.
-        on_keplerian_parameters_changed();
-    }
+    // void set_longitude_of_perigee(double new_longitude_of_perigee)
+    // {
+    //     longitude_of_perigee = Mathd.IEEERemainder(new_longitude_of_perigee, 2.0 * Mathd.PI);
+    //     keplerian_to_cartesian(); // Do not update the integrals, they are the same.
+    //     on_keplerian_parameters_changed();
+    // }
 
-    void set_clockwise(bool new_clockwise)
-    {
-        // Change revolvation direction by changing the sign of the specific angular momentum.
-        if (clockwise != new_clockwise)
-        { specific_angular_momentum = -specific_angular_momentum; }
+    // void set_clockwise(bool new_clockwise)
+    // {
+    //     // Change revolvation direction by changing the sign of the specific angular momentum.
+    //     if (clockwise != new_clockwise)
+    //     { specific_angular_momentum = -specific_angular_momentum; }
 
-        clockwise = new_clockwise;
-        keplerian_to_cartesian(); // Just need to update the sign of the specific angular momentum, no need for a full update.
-        on_keplerian_parameters_changed();
-    }
-
-    Dictionary<String, double> get_keplerian_parameters() {
-        Dictionary<String, double> result = new();
-
-        result["mu"] = mu;
-        result["periapsis"] = periapsis;
-        result["eccentricity"] = eccentricity;
-        result["longitude_of_perigee"] = longitude_of_perigee;
-
-        return result;
-    }
+    //     clockwise = new_clockwise;
+    //     keplerian_to_cartesian(); // Just need to update the sign of the specific angular momentum, no need for a full update.
+    //     on_keplerian_parameters_changed();
+    // }
 
 
-    public void set_true_anomaly(double new_true_anomaly)
-    {
-        if (eccentricity < 1.0) { new_true_anomaly = Math.IEEERemainder(new_true_anomaly, 2.0 * Math.PI); }
-        else
-        {
-            double max_true_anomaly_absolute_value = Math.Acos(-1.0 / eccentricity) -
-                                                     (double)(Single.Epsilon);// `float` machine epsilon for stability.
+    // public void set_true_anomaly(double new_true_anomaly)
+    // {
+    //     if (eccentricity < 1.0) { new_true_anomaly = Mathd.IEEERemainder(new_true_anomaly, 2.0 * Mathd.PI); }
+    //     else
+    //     {
+    //         double max_true_anomaly_absolute_value = Mathd.Acos(-1.0 / eccentricity) -
+    //                                                  (double)(Single.Epsilon);// `float` machine epsilon for stability.
             
-            new_true_anomaly = Math.Clamp(new_true_anomaly, -max_true_anomaly_absolute_value, max_true_anomaly_absolute_value);
-        }
-        true_anomaly = new_true_anomaly;
+    //         new_true_anomaly = Mathd.Clamp(new_true_anomaly, -max_true_anomaly_absolute_value, max_true_anomaly_absolute_value);
+    //     }
+    //     true_anomaly = new_true_anomaly;
 
-        mean_anomaly = CelestialPhysics.true_anomaly_to_mean_anomaly(new_true_anomaly, eccentricity);
-        keplerian_to_cartesian(); // Do not update the integrals, they are the same.
-    }
+    //     mean_anomaly = CelestialPhysics.true_anomaly_to_mean_anomaly(new_true_anomaly, eccentricity);
+    //     keplerian_to_cartesian(); // Do not update the integrals, they are the same.
+    // }
 
 
-    public void set_mean_anomaly(double new_mean_anomaly)
-    {
-        if (eccentricity < 1.0) { new_mean_anomaly = Math.IEEERemainder(new_mean_anomaly, 2.0 * Math.PI); }
-        mean_anomaly = new_mean_anomaly;
+    // public void set_mean_anomaly(double new_mean_anomaly)
+    // {
+    //     if (eccentricity < 1.0) { new_mean_anomaly = Mathd.IEEERemainder(new_mean_anomaly, 2.0 * Mathd.PI); }
+    //     mean_anomaly = new_mean_anomaly;
 
-        true_anomaly = CelestialPhysics.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, true_anomaly);
+    //     true_anomaly = CelestialPhysics.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, true_anomaly);
 
-        keplerian_to_cartesian(); // Do not update the integrals, they are the same.
-    }
+    //     keplerian_to_cartesian(); // Do not update the integrals, they are the same.
+    // }
 
     Vector3d get_linear_velocity() { return linear_velocity; }
     void set_linear_velocity(Vector3d new_linear_velocity)
@@ -336,48 +352,62 @@ public class Orbit : MonoBehaviour
                  V
     */
 
-    void keplerian_to_cartesian()
-    {
-        if(Math.Abs(inclination) <= 1E-06) inclination = 1E-06; // The orbital equations do NOT play nice with very low inclinations
+    public (Vector3d localPos, Vector3d localVel) GetCartesianAtTime(double time, bool updating) {
+        if(Mathd.Abs(inclination) <= 1E-06) inclination = 1E-06; // The orbital equations do NOT play nice with very low inclinations
 
         // Updating the integrals.
         specific_angular_momentum  = get_specific_angular_momentum_from_keplerian();
         specific_mechanical_energy = get_specific_mechanical_energy_from_keplerian();
         mean_motion = get_mean_motion_from_keplerian();
 
+        double new_mean_anomaly = mean_anomaly + (time - orbitStartTime) * mean_motion;
+        if (eccentricity < 1.0) { new_mean_anomaly = Mathd.IEEERemainder(new_mean_anomaly, 2.0 * Mathd.PI); }
+
+        double true_anomaly = CelestialPhysics.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, this.true_anomaly);
+
+        var results = GetCartesianAtTrueAnomaly(true_anomaly, updating);
+
+        return (results.localPos, results.localVel);
+    }
+    public (Vector3d localPos, Vector3d localVel) GetCartesianAtTrueAnomaly(double true_anomaly, bool updating) {
+        if(Mathd.Abs(inclination) <= 1E-06) inclination = 1E-06; // The orbital equations do NOT play nice with very low inclinations
+
+        // Updating the integrals.
+        specific_angular_momentum  = get_specific_angular_momentum_from_keplerian();
+
+        if (updating) this.true_anomaly = true_anomaly;
+
         // Updating the distance.
-        distance = get_semi_latus_rectum() / (1.0 + eccentricity * Math.Cos(true_anomaly));
+        double distance = get_semi_latus_rectum() / (1.0 + eccentricity * Mathd.Cos(true_anomaly));
 
         // Position
-        double X = distance*(Math.Cos(longitude_of_ascending_node)*Math.Cos(longitude_of_perigee+true_anomaly) 
-                  - Math.Sin(longitude_of_ascending_node)*Math.Sin(longitude_of_perigee+true_anomaly)*Math.Cos(inclination));
+        double X = distance*(Mathd.Cos(longitude_of_ascending_node)*Mathd.Cos(longitude_of_perigee+true_anomaly) 
+                  - Mathd.Sin(longitude_of_ascending_node)*Mathd.Sin(longitude_of_perigee+true_anomaly)*Mathd.Cos(inclination));
 
-        double Y = distance*(Math.Sin(longitude_of_ascending_node)*Math.Cos(longitude_of_perigee+true_anomaly)
-                  + Math.Cos(longitude_of_ascending_node)*Math.Sin(longitude_of_perigee+true_anomaly)*Math.Cos(inclination));
+        double Y = distance*(Mathd.Sin(longitude_of_ascending_node)*Mathd.Cos(longitude_of_perigee+true_anomaly)
+                  + Mathd.Cos(longitude_of_ascending_node)*Mathd.Sin(longitude_of_perigee+true_anomaly)*Mathd.Cos(inclination));
 
-        double Z = distance*(Math.Sin(inclination)*Math.Sin(longitude_of_perigee+true_anomaly));
+        double Z = distance*(Mathd.Sin(inclination)*Mathd.Sin(longitude_of_perigee+true_anomaly));
 
-        localPos = new(X, Y, Z);
+        Vector3d localPos = new(X, Y, Z);
 
         // Velocity
         double p = get_semi_major_axis()*(1-eccentricity*eccentricity);
 
-        double V_X = (X*specific_angular_momentum*eccentricity/(distance*p))*Math.Sin(true_anomaly) 
-                    - (specific_angular_momentum/distance)*(Math.Cos(longitude_of_ascending_node)*Math.Sin(longitude_of_perigee+true_anomaly)
-                    + Math.Sin(longitude_of_ascending_node)*Math.Cos(longitude_of_perigee+true_anomaly)*Math.Cos(inclination));
+        double V_X = (X*specific_angular_momentum*eccentricity/(distance*p))*Mathd.Sin(true_anomaly) 
+                    - (specific_angular_momentum/distance)*(Mathd.Cos(longitude_of_ascending_node)*Mathd.Sin(longitude_of_perigee+true_anomaly)
+                    + Mathd.Sin(longitude_of_ascending_node)*Mathd.Cos(longitude_of_perigee+true_anomaly)*Mathd.Cos(inclination));
 
-        double V_Y = (Y*specific_angular_momentum*eccentricity/(distance*p))*Math.Sin(true_anomaly) 
-                    - (specific_angular_momentum/distance)*(Math.Sin(longitude_of_ascending_node)*Math.Sin(longitude_of_perigee+true_anomaly) 
-                    - Math.Cos(longitude_of_ascending_node)*Math.Cos(longitude_of_perigee+true_anomaly)*Math.Cos(inclination));
+        double V_Y = (Y*specific_angular_momentum*eccentricity/(distance*p))*Mathd.Sin(true_anomaly) 
+                    - (specific_angular_momentum/distance)*(Mathd.Sin(longitude_of_ascending_node)*Mathd.Sin(longitude_of_perigee+true_anomaly) 
+                    - Mathd.Cos(longitude_of_ascending_node)*Mathd.Cos(longitude_of_perigee+true_anomaly)*Mathd.Cos(inclination));
 
-        double V_Z = (Z*specific_angular_momentum*eccentricity/(distance*p))*Math.Sin(true_anomaly) 
-                    + (specific_angular_momentum/distance)*(Math.Cos(longitude_of_perigee+true_anomaly)*Math.Sin(inclination));
+        double V_Z = (Z*specific_angular_momentum*eccentricity/(distance*p))*Mathd.Sin(true_anomaly) 
+                    + (specific_angular_momentum/distance)*(Mathd.Cos(longitude_of_perigee+true_anomaly)*Mathd.Sin(inclination));
 
-        localVel = new(V_X, V_Y, V_Z);
+        Vector3d localVel = new(V_X, V_Y, V_Z);
 
-        // Updating global cartesian coordinates.
-        local_cartesian_to_cartesian();
-
+        return (localPos, localVel);
     }
 
     void cartesian_to_keplerian()
@@ -386,7 +416,7 @@ public class Orbit : MonoBehaviour
         // (must be implemented in derived classes)
         cartesian_to_local_cartesian();
 
-        if(Math.Abs(inclination) <= 1E-06) inclination = 1E-06; // The orbital equations do NOT play nice with very low inclinations
+        if(Mathd.Abs(inclination) <= 1E-06) inclination = 1E-06; // The orbital equations do NOT play nice with very low inclinations
 
         distance = localPos.magnitude;
         double velocity_quad = localVel.sqrMagnitude;
@@ -398,15 +428,15 @@ public class Orbit : MonoBehaviour
         clockwise = true;
 
         // i
-        inclination = Math.Acos(angular_momentum.z / specific_angular_momentum);
+        inclination = Mathd.Acos(angular_momentum.z / specific_angular_momentum);
 
         // LAN
-        longitude_of_ascending_node = Math.Atan2(angular_momentum[0],-angular_momentum[1]);
+        longitude_of_ascending_node = Mathd.Atan2(angular_momentum[0],-angular_momentum[1]);
 
         // eccentricity
         double E = 0.5 * velocity_quad - mu / distance;
         double semi_major_axis = -mu / (2 * E);
-        eccentricity = Math.Sqrt(1 - (specific_angular_momentum*specific_angular_momentum) / (semi_major_axis * mu));
+        eccentricity = Mathd.Sqrt(1 - (specific_angular_momentum*specific_angular_momentum) / (semi_major_axis * mu));
 
         mean_motion = get_mean_motion_from_keplerian(); // TODO direct calculation from cartesian.
 
@@ -415,22 +445,23 @@ public class Orbit : MonoBehaviour
 
         // True and mean anomaly.
         double p = semi_major_axis * (1 - eccentricity*eccentricity);
-        true_anomaly = Math.Atan2(Math.Sqrt(p / mu) * Vector3d.Dot(localPos, localVel),
+        true_anomaly = Mathd.Atan2(Mathd.Sqrt(p / mu) * Vector3d.Dot(localPos, localVel),
                                   p - distance);
                                   
         mean_anomaly = CelestialPhysics.true_anomaly_to_mean_anomaly(true_anomaly, eccentricity);
+        orbitStartTime = CelestialPhysics.get_singleton().time;
 
         // LP
-        longitude_of_perigee = Math.Atan2(localPos[2] / (Math.Sin(inclination) + double.Epsilon),
-                                          localPos[0]*Math.Cos(longitude_of_ascending_node) + localPos[1]*Math.Sin(longitude_of_ascending_node));
+        longitude_of_perigee = Mathd.Atan2(localPos[2] / (Mathd.Sin(inclination) + double.Epsilon),
+                                          localPos[0]*Mathd.Cos(longitude_of_ascending_node) + localPos[1]*Mathd.Sin(longitude_of_ascending_node));
         longitude_of_perigee -= true_anomaly;
 
         on_keplerian_parameters_changed();
     }
 
     // Conversion between local (on orbital plane) and global cartesian coordinates.
-    void local_cartesian_to_cartesian() {
-        transform.localPosition = (Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * scalar);
+    void local_cartesian_to_cartesian(bool updateTransform = true) {
+        if(updateTransform) transform.localPosition = (Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * scalar);
         
         worldPos = localPos;
         bool checkingUp = true;
@@ -462,7 +493,7 @@ public class Orbit : MonoBehaviour
         if (transform.parent.TryGetComponent<Orbit>(out var parent)) {
             if (parent.transform.parent.TryGetComponent<Orbit>(out var new_parent)) {
 
-                transform.SetParent(new_parent.transform, true);
+                transform.parent = new_parent.transform;
                 localPos += parent.localPos;
                 
                 mu = new_parent.get_children_mu();
@@ -528,29 +559,18 @@ public class Orbit : MonoBehaviour
         update_children_mu();
     }
 
-    /// <summary>
-    /// Adds delta to mean anomaly taking into account mean motion
-    /// </summary>
-    /// <param name="delta"></param>
-    public void _physics_process(double delta)
-    {
+
+    public void _physics_process(double time, bool updateTransform = true) {
         scalar = CelestialPhysics.get_singleton().get_spaceScale();
         if (isEnabled)
         {
-            double physics_dt = delta;
-            set_mean_anomaly(mean_anomaly + physics_dt * mean_motion);
-        }
-    }
+            var results = GetCartesianAtTime(time, true);
 
-    /// <summary>
-    /// Straight adds delta to the mean anomaly
-    /// </summary>
-    /// <param name="delta"></param>
-    public void _orbit_process(double delta)
-    {
-        scalar = CelestialPhysics.get_singleton().get_spaceScale();
-        double physics_dt = delta;
-        set_mean_anomaly(mean_anomaly + physics_dt);
+            localPos = results.localPos;
+            distance = localPos.magnitude;
+            localVel = results.localVel;
+            local_cartesian_to_cartesian();
+        }
     }
 
 }

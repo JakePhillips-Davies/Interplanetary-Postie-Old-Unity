@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// 
@@ -15,8 +15,14 @@ using UnityEngine;
 public class CelestialPhysics : MonoBehaviour
 {
     //
+    [Header("UpdateEditor")]
+    [SerializeField] private bool BIG_BUTTON_FOR_VALIDATING;
+
+    [SerializeField] private UIDocument ui;
+
     public static double gravitational_constant = 6.6743015e-11;
     [SerializeField] double time_scale = 1.0;
+    public double time {get; private set;} = 0;
     [SerializeField] float spaceScaleDownFactor = 1000;
     [SerializeField] Material lineMat;
 
@@ -45,26 +51,33 @@ public class CelestialPhysics : MonoBehaviour
         singleton = this;
 
         UpdateCelestialTree();
+
+        ui.rootVisualElement.Q<Slider>().dataSource = this;
     }
 
     private void FixedUpdate() {
-        ProcessCelestialChildren(rootCelestialObject);
+        ProcessCelestialPhysics();
+        time += Time.fixedDeltaTime * get_time_scale();
     }
 
-    private void Update() { // Editor shenanigans
-        if (!Application.isPlaying){
-            singleton = this;
-            UpdateCelestialTree();
-            void CheckChildrenRecurs(CelestialObject obj){
-                foreach (var child in obj.children)
-                {
-                    CheckChildrenRecurs(child); 
-                    child.orbitManager.EditorUpdate();
-                }
+    private void OnValidate() { // Editor shenanigans
+        Validate();
+    }
+    public void Validate() {
+        singleton = this;
+        UpdateCelestialTree();
+        void CheckChildrenRecurs(CelestialObject obj){
+            foreach (var child in obj.children)
+            {
+                CheckChildrenRecurs(child); 
+                child.orbitManager.EditorUpdate();
+                child.orbitManager.EditorUpdate();
             }
-
-            CheckChildrenRecurs(rootCelestialObject);
         }
+
+        BIG_BUTTON_FOR_VALIDATING = false;
+
+        CheckChildrenRecurs(rootCelestialObject);
     }
 
 
@@ -122,12 +135,19 @@ public class CelestialPhysics : MonoBehaviour
 
         }
     }
-    private void ProcessCelestialChildren(CelestialObject obj) {
+    public void ProcessCelestialPhysics() {
+        ProcessCelestialChildren(rootCelestialObject, time, true);
+    }
+    public void ProcessCelestialPhysics(double t) {
+        ProcessCelestialChildren(rootCelestialObject, t, false);
+    }
+    private void ProcessCelestialChildren(CelestialObject obj, double t, bool drawing) {
         foreach (var child in obj.children) {
-
-            ProcessCelestialChildren(child);
             
-            child.orbitManager.ProcessOrbit();
+            if(drawing)child.orbitManager.ProcessOrbit(t);
+            else child.orbitManager.ProcessOrbitGhost(t);
+
+            ProcessCelestialChildren(child, t, drawing);
             
         }
     }
@@ -175,56 +195,59 @@ public class CelestialPhysics : MonoBehaviour
 
     public static double true_anomaly_to_eccentric_anomaly(double true_anomaly, double eccentricity)
     {
-        double beta = eccentricity / (1.0 + Math.Sqrt(1.0 - eccentricity * eccentricity));
-        return true_anomaly - 2.0 * Math.Atan(beta * Math.Sin(true_anomaly) / (1.0 + beta * Math.Cos(true_anomaly)));
+        double beta = eccentricity / (1.0 + Mathd.Sqrt(1.0 - eccentricity * eccentricity));
+        return true_anomaly - 2.0 * Mathd.Atan(beta * Mathd.Sin(true_anomaly) / (1.0 + beta * Mathd.Cos(true_anomaly)));
     }
 
     public static double eccentric_anomaly_to_true_anomaly(double eccentric_anomaly, double eccentricity)
     {
-        double beta = eccentricity / (1.0 + Math.Sqrt(1.0 - eccentricity * eccentricity));
-        return eccentric_anomaly + 2.0 * Math.Atan(beta * Math.Sin(eccentric_anomaly) / (1.0 - beta * Math.Cos(eccentric_anomaly)));
+        double beta = eccentricity / (1.0 + Mathd.Sqrt(1.0 - eccentricity * eccentricity));
+        return eccentric_anomaly + 2.0 * Mathd.Atan(beta * Mathd.Sin(eccentric_anomaly) / (1.0 - beta * Mathd.Cos(eccentric_anomaly)));
     }
 
 
     public static double mean_anomaly_to_true_anomaly(double mean_anomaly, double eccentricity, double true_anomaly_hint)
     {
+        if (double.IsNaN(true_anomaly_hint)) true_anomaly_hint = 0;
+        if (double.IsNaN(mean_anomaly)) return true_anomaly_hint;
+
         double tolerance = 0.00000001;
         int max_iter = 100;
 
         // Using Newton method to convert mean anomaly to true anomaly.
         if (eccentricity < 1) {
 
-            mean_anomaly = Math.IEEERemainder(mean_anomaly, 2.0 * Math.PI);
-            double eccentric_anomaly = 2.0 * Math.Atan(Math.Tan(0.5 * true_anomaly_hint) * Math.Sqrt((1.0 - eccentricity) / (1.0 + eccentricity)));
+            mean_anomaly = Mathd.IEEERemainder(mean_anomaly, 2.0 * Mathd.PI);
+            double eccentric_anomaly = 2.0 * Mathd.Atan(Mathd.Tan(0.5 * true_anomaly_hint) * Mathd.Sqrt((1.0 - eccentricity) / (1.0 + eccentricity)));
 
             double region_min = mean_anomaly - eccentricity;
             double region_max = mean_anomaly + eccentricity;
 
             for (int iter = 0; iter < max_iter; ++iter) // Newton iteration for Kepler equation;
             {
-                eccentric_anomaly = Math.Clamp(eccentric_anomaly, region_min, region_max);
+                eccentric_anomaly = Mathd.Clamp(eccentric_anomaly, region_min, region_max);
 
-                double residual = eccentric_anomaly - eccentricity * Math.Sin(eccentric_anomaly) - mean_anomaly;
-                double derivative = 1.0 - eccentricity * Math.Cos(eccentric_anomaly);
+                double residual = eccentric_anomaly - eccentricity * Mathd.Sin(eccentric_anomaly) - mean_anomaly;
+                double derivative = 1.0 - eccentricity * Mathd.Cos(eccentric_anomaly);
 
                 double delta = -residual / derivative;
                 eccentric_anomaly += delta;
-                if (Math.Abs(delta) < tolerance) { break; }
+                if (Mathd.Abs(delta) < tolerance) { break; }
 
                 if (iter + 1 == max_iter)
-                { Debug.Log("Mean anomaly to true anomaly conversion failed: the solver did not converge."); }
+                { Debug.Log("Mean anomaly to true anomaly conversion failed: the solver did not converge. " + mean_anomaly +" "+ eccentricity +" "+ true_anomaly_hint); }
             }
 
-            return 2.0 * Math.Atan(Math.Tan(0.5 * eccentric_anomaly) * Math.Sqrt((1.0 + eccentricity) / (1.0 - eccentricity)));
+            return 2.0 * Mathd.Atan(Mathd.Tan(0.5 * eccentric_anomaly) * Mathd.Sqrt((1.0 + eccentricity) / (1.0 - eccentricity)));
 
         } else if(eccentricity == 1) {
 
-            double z = Math.Cbrt(3.0 * mean_anomaly + Math.Sqrt(1 + 9.0 * mean_anomaly * mean_anomaly));
-            return 2.0 * Math.Atan(z - 1.0 / z);
+            double z = Math.Cbrt(3.0 * mean_anomaly + Mathd.Sqrt(1 + 9.0 * mean_anomaly * mean_anomaly));
+            return 2.0 * Mathd.Atan(z - 1.0 / z);
 
         } else {
 
-            double eccentric_anomaly = 2.0 * Math.Atanh(Math.Tan(0.5 * true_anomaly_hint) * Math.Sqrt((eccentricity - 1.0) / (eccentricity + 1.0)));
+            double eccentric_anomaly = 2.0 * Math.Atanh(Mathd.Tan(0.5 * true_anomaly_hint) * Mathd.Sqrt((eccentricity - 1.0) / (eccentricity + 1.0)));
             for (int iter = 0; iter < max_iter; ++iter) // Newton iteration for Kepler equation;
             {
                 double residual = eccentricity * Math.Sinh(eccentric_anomaly) - eccentric_anomaly - mean_anomaly;
@@ -232,13 +255,13 @@ public class CelestialPhysics : MonoBehaviour
 
                 double delta = -residual / derivative;
                 eccentric_anomaly += delta;
-                if (Math.Abs(delta) < tolerance) { break; }
+                if (Mathd.Abs(delta) < tolerance) { break; }
 
                 if (iter + 1 == max_iter)
-                { Debug.Log("Mean anomaly to true anomaly conversion failed: the solver did not converge."); }
+                { Debug.Log("Mean anomaly to true anomaly conversion failed: the solver did not converge." + mean_anomaly +" "+ eccentricity +" "+ true_anomaly_hint); }
             }
 
-            return 2.0 * Math.Atan(Math.Tanh(0.5 * eccentric_anomaly) * Math.Sqrt((eccentricity + 1.0) / (eccentricity - 1.0)));
+            return 2.0 * Mathd.Atan(Math.Tanh(0.5 * eccentric_anomaly) * Mathd.Sqrt((eccentricity + 1.0) / (eccentricity - 1.0)));
 
         }
     }
@@ -250,28 +273,21 @@ public class CelestialPhysics : MonoBehaviour
         
         if (eccentricity < 1) {
 
-            double eccentric_anomaly = 2.0 * Math.Atan(Math.Tan(0.5 * true_anomaly) * Math.Sqrt((1.0 - eccentricity) / (1.0 + eccentricity)));
-            return eccentric_anomaly - eccentricity * Math.Sin(eccentric_anomaly);
+            double eccentric_anomaly = 2.0 * Mathd.Atan(Mathd.Tan(0.5 * true_anomaly) * Mathd.Sqrt((1.0 - eccentricity) / (1.0 + eccentricity)));
+            return eccentric_anomaly - eccentricity * Mathd.Sin(eccentric_anomaly);
 
         } else if(eccentricity == 1) {
 
-            double hta_tan = Math.Tan(0.5 * true_anomaly);
+            double hta_tan = Mathd.Tan(0.5 * true_anomaly);
             return 0.5 * hta_tan * (1.0 + hta_tan * hta_tan / 3.0);
 
         } else {
 
-            double eccentric_anomaly = 2.0 * Math.Atanh(Math.Tan(0.5 * true_anomaly) * Math.Sqrt((eccentricity - 1.0) / (eccentricity + 1.0)));
+            double eccentric_anomaly = 2.0 * Math.Atanh(Mathd.Tan(0.5 * true_anomaly) * Mathd.Sqrt((eccentricity - 1.0) / (eccentricity + 1.0)));
             double meanAnomaly = eccentricity * Math.Sinh(eccentric_anomaly) - eccentric_anomaly;
             
             return meanAnomaly;
 
-        }
-    }
-
-
-    private void OnValidate(){
-        if (singleton == null) {
-            singleton = this;
         }
     }
 }
