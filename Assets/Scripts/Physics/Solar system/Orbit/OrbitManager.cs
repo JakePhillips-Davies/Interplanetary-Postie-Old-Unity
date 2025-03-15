@@ -207,7 +207,7 @@ public class OrbitManager : MonoBehaviour
     private void DrawOrbitPoints() {
 
         Vector3 camPos;
-        camPos = Camera.main.transform.position;
+        camPos = Camera.main.transform.localPosition;
 
         float distance = camPos.magnitude;
 

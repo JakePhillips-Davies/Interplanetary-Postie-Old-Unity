@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 [ExecuteInEditMode]
 public class AutoCentre : MonoBehaviour
 {
     [SerializeField] UIDocument ui;
-    public Transform[] objectList { get; private set; }
+    public ScaleSpaceBody[] objectList { get; private set; }
     public int focus = 3;
     public string focusName;
     
@@ -23,10 +25,18 @@ public class AutoCentre : MonoBehaviour
             if(focus < objectList.Length-1) focus++;
         };
     }
-    private void Update() {
-        // if ( !Application.isPlaying ) transform.position -= objectList[focus].position;
-        // else if ( objectList[focus].position.magnitude > 0.5 ) transform.position = Vector3.Lerp(transform.position, transform.position - objectList[focus].position, 0.3f );
-        transform.position -= objectList[focus].position;
+    private void LateUpdate() {
+        Orbit focusOrbit = objectList[focus].refOrbit;
+        foreach (ScaleSpaceBody _object in objectList) {
+            
+            Orbit orbit = _object.refOrbit;
+
+            Vector3d posFromFocus = orbit.getWorldPos() - focusOrbit.getWorldPos();
+            posFromFocus = new(posFromFocus.x, posFromFocus.z, -posFromFocus.y);
+
+            _object.transform.position = (Vector3)(posFromFocus * CelestialPhysics.get_singleton().get_spaceScale()); 
+
+        }
 
         focusName = objectList[focus].name;
     }
@@ -38,10 +48,10 @@ public class AutoCentre : MonoBehaviour
 
 
     public void UpdateObjectList() {
-        List<Transform> tempList = new();
+        List<ScaleSpaceBody> tempList = new();
 
-        foreach (Orbit orbit in GetComponentsInChildren<Orbit>()) {
-            tempList.Add(orbit.transform);
+        foreach (ScaleSpaceBody orbit in GetComponentsInChildren<ScaleSpaceBody>()) {
+            tempList.Add(orbit);
         }
 
         objectList = tempList.ToArray();

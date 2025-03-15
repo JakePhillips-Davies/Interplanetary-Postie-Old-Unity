@@ -21,9 +21,6 @@ public class CelestialPhysics : MonoBehaviour
     [SerializeField] private UIDocument ui;
 
     public static double gravitational_constant = 6.6743015e-11;
-    /// <summary>
-    /// !!!!!!!!!!!!!STILL SQUARED FOR TESTING PURPOSE!!!!!!!!!!
-    /// </summary>
     [SerializeField] double time_scale = 1.0;
     public String timeScaleString;
     public double time {get; private set;} = 100;

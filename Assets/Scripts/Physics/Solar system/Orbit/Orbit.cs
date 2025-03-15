@@ -464,19 +464,13 @@ public class Orbit : MonoBehaviour
 
     // Conversion between local (on orbital plane) and global cartesian coordinates.
     void local_cartesian_to_cartesian(bool updateTransform = true) {
-        if(updateTransform) transform.localPosition = (Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * scalar);
         
         worldPos = localPos;
-        bool checkingUp = true;
-        Orbit checkingOrbit = this;
-        while (checkingUp) {
-            if (checkingOrbit.transform.parent.TryGetComponent<Orbit>(out var parent)) {
-                worldPos += parent.localPos;
-
-                checkingOrbit = parent;
-            }
-            else checkingUp = false;
+        if (transform.parent.TryGetComponent<Orbit>(out var parent)) {
+            worldPos += parent.worldPos;
         }
+
+        if(updateTransform) transform.localPosition = (Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * scalar);
 
         linear_velocity = localVel;
     }
