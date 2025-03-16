@@ -11,7 +11,6 @@ using UnityEngine;
 /// And this resource: https://orbital-mechanics.space/classical-orbital-elements/orbital-elements-and-the-state-vector.html#orbital-elements-state-vector
 /// 
 /// </summary>
-[ExecuteInEditMode]
 public class Orbit : MonoBehaviour
 {
     //
@@ -19,37 +18,37 @@ public class Orbit : MonoBehaviour
             Variables
     */
 
-    [SerializeField] double mass;
+    [SerializeField] private double mass;
 
     // Common orbital parameters.
-    double mu = 1;           // Standard gravitational parameter of the parent celestial body.
-    [SerializeField] double periapsis = 0.0;    // Distance to the lowest point of the orbit.
-    [SerializeField] double eccentricity = 0.0; // Eccentricity of the orbit;
+    private double mu = 1;           // Standard gravitational parameter of the parent celestial body.
+    [SerializeField] private double periapsis = 0.0;    // Distance to the lowest point of the orbit.
+    [SerializeField] private double eccentricity = 0.0; // Eccentricity of the orbit;
                                                 // 0 - circular orbit, (0 - 1) - elliptical, 1 - parabolic, (1 - +\infty) - hyperbolic.
-    [SerializeField] double longitude_of_perigee = 0.0;
-    [SerializeField] double longitude_of_ascending_node = 0.0;
-    [SerializeField] double inclination = 0.0;
-    [SerializeField] bool clockwise = true;
+    [SerializeField] private double longitude_of_perigee = 0.0;
+    [SerializeField] private double longitude_of_ascending_node = 0.0;
+    [SerializeField] private double inclination = 0.0;
+    [SerializeField] private bool clockwise = true;
 
-    double true_anomaly = 0.0;
-    double mean_anomaly = 0.0;
-    double distance = 0.0;
-    double orbitStartTime = 0;
+    private double true_anomaly = 0.0;
+    private double mean_anomaly = 0.0;
+    private double distance = 0.0;
+    private double orbitStartTime = 0;
 
     // Integrals.
-    double specific_angular_momentum = 0.0;
-    double specific_mechanical_energy = 0.0;
-    double mean_motion = 0.0;
+    private double specific_angular_momentum = 0.0;
+    private double specific_mechanical_energy = 0.0;
+    private double mean_motion = 0.0;
 
-    Vector3d localPos = new();
-    Vector3d worldPos = new();
-    Vector3d localVel = new();
+    private Vector3d localPos = new();
+    private Vector3d worldPos = new();
+    private Vector3d localVel = new();
 
-    Vector3d linear_velocity = new(0.0, 0.0);
+    private Vector3d linear_velocity = new(0.0, 0.0);
 
-    bool isEnabled = true;
+    private bool isEnabled = true;
 
-    float scalar = 1 / 1000000;
+    private float scalar = 1 / 1000000;
     //
 
 
@@ -62,8 +61,8 @@ public class Orbit : MonoBehaviour
     private void Start() {
         update_children_mu();
         if (transform.parent.TryGetComponent<Orbit>(out var parent)) mu = parent.get_children_mu();
-        orbitStartTime = CelestialPhysics.get_singleton().time;
-        _physics_process(CelestialPhysics.get_singleton().time);
+        orbitStartTime = UniversalTimeSingleton.Get.time;
+        _physics_process(UniversalTimeSingleton.Get.time);
     }
 
     public void EditorUpdate() {
@@ -77,23 +76,12 @@ public class Orbit : MonoBehaviour
             distance = 0.0;
         }
 
-        scalar = CelestialPhysics.get_singleton().get_spaceScale();
-        _physics_process(CelestialPhysics.get_singleton().time);
+        scalar = ScaleSpaceSingleton.Get.GetSpaceScale();
+        orbitStartTime = UniversalTimeSingleton.Get.time;
+        _physics_process(UniversalTimeSingleton.Get.time);
     }
 
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-
-        scalar =  CelestialPhysics.get_singleton().get_spaceScale();
-
-        if (CelestialPhysics.get_singleton().SOIGizmo) Gizmos.DrawWireSphere(transform.position, (float)get_influence_radius() * scalar);
-
-        if (CelestialPhysics.get_singleton().VelGizmo) Gizmos.DrawLine(transform.position, transform.position + (Vector3)new Vector3d(localVel.x, localVel.z, -localVel.y) * scalar * 100000);
-    }
-
-    private void OnValidate() {
-        if(!Application.isPlaying) CelestialPhysics.get_singleton().Validate();    
-    }
+    
 
 
 
@@ -133,15 +121,15 @@ public class Orbit : MonoBehaviour
         this.localVel = from.localVel;
         this.transform.parent = from.parent;
         
-        _physics_process(CelestialPhysics.get_singleton().time);
+        _physics_process(UniversalTimeSingleton.Get.time);
         local_cartesian_to_cartesian();
     }
 
-    static Vector3d reference_direction = Vector3d.right;
+    private static Vector3d reference_direction = Vector3d.right;
 
     // Integrals calculation from keplerian parameters.
-    double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Mathd.Sqrt(mu * get_semi_latus_rectum()); }
-    double get_specific_mechanical_energy_from_keplerian() { return -mu / (2.0 * get_semi_major_axis()); }
+    private double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Mathd.Sqrt(mu * get_semi_latus_rectum()); }
+    private double get_specific_mechanical_energy_from_keplerian() { return -mu / (2.0 * get_semi_major_axis()); }
     public double get_mean_motion_from_keplerian()
     {
         //double abs_semi_major_axis = Mathd.abs(get_semi_major_axis());
@@ -152,18 +140,18 @@ public class Orbit : MonoBehaviour
         return multiplier * mu * mu / (specific_angular_momentum * specific_angular_momentum * specific_angular_momentum);
     }
 
-    public Vector3d getLocalPos() {
+    public Vector3d GetLocalPos() {
         return localPos;
     }
-    public Vector3d getWorldPos() {
+    public Vector3d GetWorldPos() {
         return worldPos;
     }
 
-    public Vector3d getLocalVel() {
+    public Vector3d GetLocalVel() {
         return localVel;
     }
-    
-    void on_keplerian_parameters_changed() {
+
+    private void on_keplerian_parameters_changed() {
         return;
     }
 
@@ -220,9 +208,9 @@ public class Orbit : MonoBehaviour
 
     // Get gravitational parameter used by children.
     public double get_children_mu()
-    { return CelestialPhysics.gravitational_constant * mass; }
+    { return CelestialPhysicsSingleton.gravitational_constant * mass; }
 
-    void update_children_mu() {
+    private void update_children_mu() {
         double children_mu = get_children_mu();
 
         Transform[] children = new Transform[transform.childCount];
@@ -253,23 +241,23 @@ public class Orbit : MonoBehaviour
 
 
 
-    void set_enabled(bool new_enabled)
+    private void set_enabled(bool new_enabled)
     {
         isEnabled = new_enabled;
     }
 
 
-    void set_mass(double new_mass)
+    private void set_mass(double new_mass)
     {
         mass = Mathd.Max(new_mass, 0.0);
         update_children_mu();
     }
 
 
-    void set_mu(double new_mu)
+    private void set_mu(double new_mu)
     {
         mu = Mathd.Max(new_mu, 0.0);
-        _physics_process(CelestialPhysics.get_singleton().time);
+        _physics_process(UniversalTimeSingleton.Get.time);
         on_keplerian_parameters_changed();  
     }
 
@@ -318,7 +306,7 @@ public class Orbit : MonoBehaviour
     //     {
     //         double max_true_anomaly_absolute_value = Mathd.Acos(-1.0 / eccentricity) -
     //                                                  (double)(Single.Epsilon);// `float` machine epsilon for stability.
-            
+
     //         new_true_anomaly = Mathd.Clamp(new_true_anomaly, -max_true_anomaly_absolute_value, max_true_anomaly_absolute_value);
     //     }
     //     true_anomaly = new_true_anomaly;
@@ -338,7 +326,7 @@ public class Orbit : MonoBehaviour
     //     keplerian_to_cartesian(); // Do not update the integrals, they are the same.
     // }
 
-    Vector3d get_linear_velocity() { return linear_velocity; }
+    private Vector3d get_linear_velocity() { return linear_velocity; }
     public void set_linear_velocity(Vector3d new_linear_velocity)
     {
         linear_velocity = new_linear_velocity;
@@ -366,7 +354,7 @@ public class Orbit : MonoBehaviour
         double new_mean_anomaly = mean_anomaly + (time - orbitStartTime) * mean_motion;
         if (eccentricity < 1.0) { new_mean_anomaly = Mathd.IEEERemainder(new_mean_anomaly, 2.0 * Mathd.PI); }
 
-        double true_anomaly = CelestialPhysics.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, this.true_anomaly);
+        double true_anomaly = CelestialPhysicsSingleton.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, this.true_anomaly);
 
         var results = GetCartesianAtTrueAnomaly(true_anomaly, updating);
 
@@ -451,8 +439,8 @@ public class Orbit : MonoBehaviour
         true_anomaly = Mathd.Atan2(Mathd.Sqrt(p / mu) * Vector3d.Dot(localPos, localVel),
                                   p - distance);
                                   
-        mean_anomaly = CelestialPhysics.true_anomaly_to_mean_anomaly(true_anomaly, eccentricity);
-        orbitStartTime = CelestialPhysics.get_singleton().time;
+        mean_anomaly = CelestialPhysicsSingleton.true_anomaly_to_mean_anomaly(true_anomaly, eccentricity);
+        orbitStartTime = UniversalTimeSingleton.Get.time;
 
         // LP
         longitude_of_perigee = Mathd.Atan2(localPos[2] / (Mathd.Sin(inclination) + double.Epsilon),
@@ -463,7 +451,7 @@ public class Orbit : MonoBehaviour
     }
 
     // Conversion between local (on orbital plane) and global cartesian coordinates.
-    void local_cartesian_to_cartesian(bool updateTransform = true) {
+    private void local_cartesian_to_cartesian(bool updateTransform = true) {
         
         worldPos = localPos;
         if (transform.parent.TryGetComponent<Orbit>(out var parent)) {
@@ -474,7 +462,7 @@ public class Orbit : MonoBehaviour
 
         linear_velocity = localVel;
     }
-    void cartesian_to_local_cartesian() {
+    private void cartesian_to_local_cartesian() {
         localVel = linear_velocity;
     }
 
@@ -485,7 +473,7 @@ public class Orbit : MonoBehaviour
                 Patching
     */
 
-    void reparent_up()
+    private void reparent_up()
     {
         if (transform.parent.TryGetComponent<Orbit>(out var parent)) {
             if (parent.transform.parent.TryGetComponent<Orbit>(out var new_parent)) {
@@ -504,7 +492,7 @@ public class Orbit : MonoBehaviour
         { Debug.Log("Can not reparent CelestialBody2D up: current parent is not a CelestialBody2D node."); }
     }
 
-    void reparent_down(Orbit new_parent)
+    private void reparent_down(Orbit new_parent)
     {
         transform.SetParent(new_parent.transform, true);
         localPos -= new_parent.localPos;
@@ -550,7 +538,7 @@ public class Orbit : MonoBehaviour
     /*
             Process
     */
-    void _ready()
+    private void _ready()
     {
         on_keplerian_parameters_changed();
         update_children_mu();
@@ -558,7 +546,7 @@ public class Orbit : MonoBehaviour
 
 
     public void _physics_process(double time, bool updateTransform = true) {
-        scalar = CelestialPhysics.get_singleton().get_spaceScale();
+        scalar = ScaleSpaceSingleton.Get.GetSpaceScale();
         if (isEnabled)
         {
             var results = GetCartesianAtTime(time, true);

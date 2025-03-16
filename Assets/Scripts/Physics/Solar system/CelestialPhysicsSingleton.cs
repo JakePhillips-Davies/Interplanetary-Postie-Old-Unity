@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// 
@@ -11,20 +10,12 @@ using UnityEngine.UIElements;
 /// Would have taken a loooooot longer without them.
 ///  
 /// </summary>
-[ExecuteInEditMode]
-public class CelestialPhysics : MonoBehaviour
+public class CelestialPhysicsSingleton : MonoBehaviour
 {
     //
-    [Header("UpdateEditor")]
-    [SerializeField] private bool BIG_BUTTON_FOR_VALIDATING;
-
-    [SerializeField] private UIDocument ui;
 
     public static double gravitational_constant = 6.6743015e-11;
-    [SerializeField] double time_scale = 1.0;
-    public String timeScaleString;
-    public double time {get; private set;} = 100;
-    [SerializeField] float spaceScaleDownFactor = 1000;
+    
     [SerializeField] Material lineMat;
 
     [field: SerializeField] public int patchDepthLimit { get; private set; } = 5;
@@ -39,7 +30,7 @@ public class CelestialPhysics : MonoBehaviour
     [SerializeField] private OrbitManager rootCelestialBody;
     public CelestialObject rootCelestialObject { get; private set; }
     
-    static CelestialPhysics singleton;
+    public static CelestialPhysicsSingleton Get { get; private set; } = null;
 
     public struct CelestialObject
     {
@@ -48,41 +39,38 @@ public class CelestialPhysics : MonoBehaviour
     }
     //
 
+    private void Awake() {
+        if ( Get == null ) {
+            Get = this;
+        }
+        else {
+            Debug.Log("SINGLETON INSTANCE ALREADY SET!!!!   check for duplicates of: " + this); 
+        }
+    }
+
     private void Start() {
-        singleton = this;
-
         UpdateCelestialTree();
-
-        ui.rootVisualElement.Q<Slider>().dataSource = this;
-        
-        time = 100;
     }
 
     private void FixedUpdate() {
-        time += Time.fixedDeltaTime * get_time_scale() * get_time_scale();
-        timeScaleString = "Time scale: " + get_time_scale() * get_time_scale();
         ProcessCelestialPhysics();
     }
-
-    private void OnValidate() { // Editor shenanigans
-        if(!Application.isPlaying) Validate();
-    }
+    
     public void Validate() {
-        singleton = this;
         UpdateCelestialTree();
         void CheckChildrenRecurs(CelestialObject obj){
             foreach (var child in obj.children)
             {
                 CheckChildrenRecurs(child); 
                 child.orbitManager.EditorUpdate();
-                child.orbitManager.EditorUpdate();
             }
         }
 
-        BIG_BUTTON_FOR_VALIDATING = false;
-
         CheckChildrenRecurs(rootCelestialObject);
     }
+
+    
+    public static void SetSingleton(CelestialPhysicsSingleton input) { Get = input; }
 
 
 
@@ -140,7 +128,7 @@ public class CelestialPhysics : MonoBehaviour
         }
     }
     public void ProcessCelestialPhysics() {
-        ProcessCelestialChildren(rootCelestialObject, time, true);
+        ProcessCelestialChildren(rootCelestialObject, UniversalTimeSingleton.Get.time, true);
     }
     public void ProcessCelestialPhysics(double t) {
         ProcessCelestialChildren(rootCelestialObject, t, false);
@@ -179,15 +167,9 @@ public class CelestialPhysics : MonoBehaviour
             Getters n shit
     */
 
-    public double get_time_scale() { return time_scale; }
     public Material getLineMat() { return lineMat; }
-    public float get_spaceDownScale() { return spaceScaleDownFactor; }
-    public float get_spaceScale() { return 1 / spaceScaleDownFactor; }
-    void set_time_scale(double new_time_scale){
-        time_scale = new_time_scale;
-    }
     
-    public static CelestialPhysics get_singleton() { return singleton; }
+    public static CelestialPhysicsSingleton get_singleton() { return Get; }
 
     
     

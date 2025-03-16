@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Orbit), typeof(LineRenderer))]
-[ExecuteInEditMode]
 public class OrbitManager : MonoBehaviour
 {
     //
@@ -34,11 +33,7 @@ public class OrbitManager : MonoBehaviour
     private void Start() {
         Setup();
     }
-    private void OnValidate() {
-        if(!Application.isPlaying) CelestialPhysics.get_singleton().Validate();    
-    }
     
-
     public void Setup() {
         lineRenderer = gameObject.GetComponent<LineRenderer>();
         orbit = transform.GetComponent<Orbit>();
@@ -90,24 +85,24 @@ public class OrbitManager : MonoBehaviour
             true_anomaly = orbit.get_true_anomaly(),
             mean_anomaly = orbit.get_mean_anomaly(),
             orbitStartTime = orbit.GetOrbitStartTime(),
-            localPos = orbit.getLocalPos(),
-            localVel = orbit.getLocalVel(),
+            localPos = orbit.GetLocalPos(),
+            localVel = orbit.GetLocalVel(),
             parent = orbit.transform.parent
         };
 
         double start = orbit.get_true_anomaly();
         double step = start;
 
-        double startTime = CelestialPhysics.get_singleton().time;
+        double startTime = UniversalTimeSingleton.Get.time;
         
         orbitPoints = new();
-        Vector3d startLocalPos = orbit.getLocalPos();
+        Vector3d startLocalPos = orbit.GetLocalPos();
 
         Orbit parent = orbit.transform.parent.GetComponent<Orbit>();
 
         patchDepth = 1;
 
-        while (patchDepth <= CelestialPhysics.get_singleton().patchDepthLimit)
+        while (patchDepth <= CelestialPhysicsSingleton.get_singleton().patchDepthLimit)
         {   
 
             if (orbit.get_eccentricity() < 1) {
@@ -118,16 +113,16 @@ public class OrbitManager : MonoBehaviour
 
                     int currentPatch = patchDepth;
 
-                    CelestialPhysics.get_singleton().ProcessCelestialPhysics(startTime + step);
+                    CelestialPhysicsSingleton.get_singleton().ProcessCelestialPhysics(startTime + step);
                     step += stepSize;
 
                     if(patchDepth != currentPatch) { break; }
 
-                    Vector3d relativeToOGParent = orbit.getWorldPos() - parent.getWorldPos();
+                    Vector3d relativeToOGParent = orbit.GetWorldPos() - parent.GetWorldPos();
                     Vector3d localPos = relativeToOGParent - startLocalPos;
-                    orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+                    orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * ScaleSpaceSingleton.Get.GetSpaceScale()));
     
-                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysics.get_singleton().patchDepthLimit;
+                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysicsSingleton.get_singleton().patchDepthLimit;
 
                 }
         
@@ -140,20 +135,20 @@ public class OrbitManager : MonoBehaviour
     
     			for (int i = 0; i < orbitDetail; i++) {
 
-                    CelestialPhysics.get_singleton().ProcessCelestialPhysics(startTime + step);
+                    CelestialPhysicsSingleton.get_singleton().ProcessCelestialPhysics(startTime + step);
                     step += stepSize;
 
-                    Vector3d relativeToOGParent = orbit.getWorldPos() - parent.getWorldPos();
+                    Vector3d relativeToOGParent = orbit.GetWorldPos() - parent.GetWorldPos();
                     Vector3d localPos = relativeToOGParent - startLocalPos;
-                    orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+                    orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * ScaleSpaceSingleton.Get.GetSpaceScale()));
 
-                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysics.get_singleton().patchDepthLimit;
+                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysicsSingleton.get_singleton().patchDepthLimit;
     			
                 }
             }
         }
 
-        CelestialPhysics.get_singleton().ProcessCelestialPhysics(CelestialPhysics.get_singleton().time);
+        CelestialPhysicsSingleton.get_singleton().ProcessCelestialPhysics(UniversalTimeSingleton.Get.time);
 
         orbit.InitialiseFromOrbitInfo(orbitInfo);
 
@@ -167,7 +162,7 @@ public class OrbitManager : MonoBehaviour
         double step = start;
         
         orbitPoints = new();
-        Vector3d startLocalPos = orbit.getLocalPos();
+        Vector3d startLocalPos = orbit.GetLocalPos();
 
 
         if (orbit.get_eccentricity() < 1) {
@@ -177,7 +172,7 @@ public class OrbitManager : MonoBehaviour
             for(int i = 0; i < orbitDetail; i++) {
 
                 Vector3d localPos = orbit.GetCartesianAtTrueAnomaly(start + step, false).localPos - startLocalPos;
-                orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+                orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * ScaleSpaceSingleton.Get.GetSpaceScale()));
 
                 step += stepSize;
 
@@ -193,14 +188,14 @@ public class OrbitManager : MonoBehaviour
             for (int i = 0; i < orbitDetail; i++) {
                 
                 Vector3d localPos = orbit.GetCartesianAtTrueAnomaly(start + step, false).localPos - startLocalPos;
-                orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * CelestialPhysics.get_singleton().get_spaceScale()));
+                orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * ScaleSpaceSingleton.Get.GetSpaceScale()));
 
                 if (i < (orbitDetail - 2)) step += stepSize;
             
             }
         }
 
-        orbit._physics_process(CelestialPhysics.get_singleton().time);
+        orbit._physics_process(UniversalTimeSingleton.Get.time);
 
     }
 
@@ -215,7 +210,7 @@ public class OrbitManager : MonoBehaviour
 
 
         lineRenderer.useWorldSpace = false;
-        lineRenderer.material = CelestialPhysics.get_singleton().getLineMat();
+        lineRenderer.material = CelestialPhysicsSingleton.get_singleton().getLineMat();
         lineRenderer.shadowCastingMode = ShadowCastingMode.Off;
         lineRenderer.enabled = true;
         lineRenderer.loop = !patching;

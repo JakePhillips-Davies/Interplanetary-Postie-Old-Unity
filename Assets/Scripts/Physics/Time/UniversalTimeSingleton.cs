@@ -1,16 +1,37 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class UniversalTime : MonoBehaviour
+[ExecuteInEditMode]
+public class UniversalTimeSingleton : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
+    
+    public static UniversalTimeSingleton Get { get; private set; } = null;
+    
+    [SerializeField] private UIDocument ui;
+
+    public double timeScale = 1.0;
+    public string timeScaleString;
+    public double time { get; private set; } = 100;
+
+    private void Awake() {
+        if ( Get == null ) {
+            Get = this;
+        }
+        else {
+            Debug.Log("SINGLETON INSTANCE ALREADY SET!!!!   check for duplicates of: " + this); 
+        }
+
+        time = 100;
+        ui.rootVisualElement.Q<Slider>().dataSource = this;
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    private void FixedUpdate() {
+        time += Time.fixedDeltaTime * timeScale * timeScale;
+        timeScaleString = "Time scale: " + timeScale * timeScale;
     }
+
+    
+    public static void SetSingleton(UniversalTimeSingleton input) { Get = input; }
+
 }

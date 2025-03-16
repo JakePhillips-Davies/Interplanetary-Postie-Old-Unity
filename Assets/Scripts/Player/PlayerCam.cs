@@ -31,7 +31,7 @@ public class PlayerCam : MonoBehaviour
     private RaycastHit hit;
     private Ray interactRay;        public Ray GetInteractRay() { return interactRay; }
 
-    void Update()
+    void LateUpdate()
     {
         if(Input.GetKeyDown(freeMouseKey)){
             isFreeLooking = !isFreeLooking;
