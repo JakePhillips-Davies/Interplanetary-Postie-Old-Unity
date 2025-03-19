@@ -3,6 +3,7 @@ using UnityEngine;
 public class LocalSpaceBody : MonoBehaviour
 {
     [field: SerializeField] public Orbit refOrbit { get; private set; }
+    [field: SerializeField] public Rigidbody rb { get; private set; }
 
     public bool isLoaded { get; private set; } = false;
 

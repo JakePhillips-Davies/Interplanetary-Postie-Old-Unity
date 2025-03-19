@@ -9,7 +9,7 @@ public class UniversalTimeSingleton : MonoBehaviour
     
     [SerializeField] private UIDocument ui;
 
-    public double timeScale = 1.0;
+    public int timeScale = 1;
     public string timeScaleString;
     public double time { get; private set; } = 100;
 
@@ -27,8 +27,12 @@ public class UniversalTimeSingleton : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        time += Time.fixedDeltaTime * timeScale * timeScale;
-        timeScaleString = "Time scale: " + timeScale * timeScale;
+        // Get a nice scale while also letting you pause
+        int poweredTimeScale = (int)Mathd.Pow(2, timeScale-1);
+        if (timeScale == 0) poweredTimeScale = 0;
+
+        time += Time.fixedDeltaTime * poweredTimeScale;
+        timeScaleString = "Time scale: " + poweredTimeScale;
     }
 
     

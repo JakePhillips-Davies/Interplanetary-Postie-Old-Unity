@@ -31,7 +31,7 @@ public class SpaceControllerSingleton : MonoBehaviour
         UpdateCelestialObjects();
 
     }
-    private void LateUpdate() {
+    private void FixedUpdate() {
         scaleSpaceBodiesPositioner.UpdatePositions();
         localSpacePositioner.UpdatePositions();
     }

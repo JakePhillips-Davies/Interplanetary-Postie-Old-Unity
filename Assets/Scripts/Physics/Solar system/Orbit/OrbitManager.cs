@@ -47,7 +47,7 @@ public class OrbitManager : MonoBehaviour
         orbit._physics_process(time);
         if (patching) orbit.patch_conics();
 
-        DrawOrbit();
+        //DrawOrbit();
     }
 
     /// <summary>
@@ -87,7 +87,8 @@ public class OrbitManager : MonoBehaviour
             orbitStartTime = orbit.GetOrbitStartTime(),
             localPos = orbit.GetLocalPos(),
             localVel = orbit.GetLocalVel(),
-            parent = orbit.transform.parent
+            parent = orbit.transform.parent,
+            parentOrbit = orbit.parentOrbit
         };
 
         double start = orbit.get_true_anomaly();
@@ -131,18 +132,22 @@ public class OrbitManager : MonoBehaviour
     
     			double endTrueAnomaly = Mathd.Acos( -1 / orbit.get_eccentricity());
     			double range = endTrueAnomaly - start;
-    			double stepSize = (range / (orbitDetail - 1)) / orbit.get_mean_motion_from_keplerian();
+    			double stepSize = (range / (orbitDetail)) / orbit.get_mean_motion_from_keplerian();
     
     			for (int i = 0; i < orbitDetail; i++) {
 
+                    int currentPatch = patchDepth;
+
                     CelestialPhysicsSingleton.get_singleton().ProcessCelestialPhysics(startTime + step);
                     step += stepSize;
+
+                    if(patchDepth != currentPatch) { break; }
 
                     Vector3d relativeToOGParent = orbit.GetWorldPos() - parent.GetWorldPos();
                     Vector3d localPos = relativeToOGParent - startLocalPos;
                     orbitPoints.Add((Vector3)(new Vector3d(localPos.x, localPos.z, -localPos.y) * ScaleSpaceSingleton.Get.GetSpaceScale()));
 
-                    if (i == (orbitDetail - 1)) patchDepth += CelestialPhysicsSingleton.get_singleton().patchDepthLimit;
+                    if (i == (orbitDetail-1)) patchDepth += CelestialPhysicsSingleton.get_singleton().patchDepthLimit;
     			
                 }
             }
