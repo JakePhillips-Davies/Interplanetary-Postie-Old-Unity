@@ -32,10 +32,7 @@ public class LocalSpacePositioner : MonoBehaviour
         
         if (!body.isLoaded) body.Load();
         
-        if (body.rb == null) {
-            body.transform.position = (Vector3)intendedPosFromFocus;
-        }
-        else {
+        if (body.rb != null) {
             Vector3d prevPos = orbit.GetCartesianAtTime(UniversalTimeSingleton.Get.time - Time.fixedDeltaTime, false).localPos;
             Vector3d prevPosFromPos = prevPos - orbit.GetLocalPos();
             prevPosFromPos = new(prevPosFromPos.x, prevPosFromPos.z, -prevPosFromPos.y);
@@ -46,6 +43,9 @@ public class LocalSpacePositioner : MonoBehaviour
             
             StartCoroutine(PostPhysics(body, orbit, vel));
         }
+        else {
+            body.transform.position = (Vector3)intendedPosFromFocus;
+        }
 
     }
     
@@ -55,5 +55,7 @@ public class LocalSpacePositioner : MonoBehaviour
         Vector3 vel = body.rb.linearVelocity - prePhysVel;
         Vector3d velD = new(vel.x, -vel.z, vel.y);
         orbit.SetCartesianElements(orbit.GetLocalVel() + velD, orbit.GetLocalPos());
+
+        body.rb.linearVelocity = Vector3.zero;
     }
 }
