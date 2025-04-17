@@ -70,3 +70,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+Assets/BlenerFiles/worseShip.blend1
+Assets/BlenerFiles/worseShip.blend
+Assets/BlenerFiles/textures/8K Moon_Diff_16K.tif
