@@ -71,6 +71,10 @@ public class VesselRbObj : MonoBehaviour
     }
 
     private void FixedUpdate() {
+
+        if (vesselController.parentVessel != null)
+            rb.isKinematic = vesselController.parentVessel.rigidbodyRef.rb.isKinematic;
+
         isMovingThisFrame = false;    
     }
 
@@ -97,6 +101,10 @@ public class VesselRbObj : MonoBehaviour
 
         MoveToVessel(otherVessel);
 
+        if (vesselController.celestialObject != null) {
+            vesselController.celestialObject.SetState(CelestialObject.CelestialObjectState.NON_ORBITTING);
+        }
+
     }
     
     public void VesselLeaveTriggerHandle() {
@@ -110,7 +118,36 @@ public class VesselRbObj : MonoBehaviour
         
         Debug.Log(vesselController.name + " is leaving: " + vesselController.parentVessel.name);
 
+        VesselController _parentVessel = vesselController.parentVessel;
+
         LeaveParent();
+
+        if ((vesselController.celestialObject != null) && (gameObject.layer == LayerMask.NameToLayer("Default"))) {
+            // A lot more needs to be done here!!
+            if (_parentVessel.celestialObject != null) {
+                vesselController.celestialObject.SetState(CelestialObject.CelestialObjectState.TRANSITIONING);
+
+                Vector3d orbitPos = _parentVessel.celestialObject.refOrbit.GetLocalPos();
+                orbitPos = new(orbitPos.x, orbitPos.z, -orbitPos.y);
+
+                orbitPos = orbitPos + new Vector3d(transform.position - _parentVessel.rigidbodyRef.transform.position);
+                
+                orbitPos = new(orbitPos.x, -orbitPos.z, orbitPos.y);
+
+                Vector3 vel = rb.linearVelocity;
+                vel = new(vel.x, -vel.z, vel.y);
+
+                vesselController.celestialObject.refOrbit.SetParentOrbit(_parentVessel.celestialObject.refOrbit.parentOrbit);
+                vesselController.celestialObject.refOrbit.SetCartesianElements(new Vector3d(vel), orbitPos);
+                vesselController.celestialObject.refOrbit.SetOrbitStartTime(_parentVessel.celestialObject.lastTime);
+                vesselController.celestialObject.RecalculateFamily();
+
+                vesselController.celestialObject.refOrbit._physics_process(UniversalTimeSingleton.Get.time);
+            }
+            else {
+                Debug.Log(vesselController.name + " | Parent does does not have an attached celestial object and this is attempting to leave!");
+            }
+        }
 
     }
 

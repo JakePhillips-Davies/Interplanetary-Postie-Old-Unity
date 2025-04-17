@@ -3,6 +3,7 @@ using UnityEngine;
 public class LocalSpaceBody : MonoBehaviour
 {
     [field: SerializeField] public Orbit refOrbit { get; private set; }
+    [field: SerializeField] public CelestialObject refCO { get; private set; }
     [field: SerializeField] public Rigidbody rb { get; private set; }
 
     public bool isLoaded { get; private set; } = false;
@@ -41,6 +42,7 @@ public class LocalSpaceBody : MonoBehaviour
     */
     
     public void SetOrbit(Orbit orbit) { refOrbit = orbit; }
+    public void SetCelestialObject(CelestialObject co) { refCO = co; }
 
     public void SetPosition(Vector3 pos) {
         if (rb != null) rb.transform.position = pos;

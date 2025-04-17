@@ -6,7 +6,9 @@ public class CelestialObject : MonoBehaviour
 {
     public enum CelestialObjectState {
         KEPLERIAN,
-        NEWTONIAN
+        NEWTONIAN,
+        NON_ORBITTING,
+        TRANSITIONING
     }
     
 //--#
@@ -50,10 +52,10 @@ public class CelestialObject : MonoBehaviour
 
     private bool postStartFrame = false;
 
-    public bool doneSimulating { get; private set; } = false;
+    public bool frameDelay = false;
 
     private Vector3 lastPos = new Vector3(0, 0, 0);
-    private double lastTime = 0;
+    public double lastTime { get; private set; }= 0;
     private Vector3d lastOrbitPos = new Vector3d(0, 0, 0);
     private Vector3d orbitLocalPos = new Vector3d(0, 0, 0);
     private Vector3d orbitLocalVel = new Vector3d(0, 0, 0);
@@ -82,15 +84,23 @@ public class CelestialObject : MonoBehaviour
     /// Simulate self, then tell it's children to do the same
     /// </summary>
     public void ChainSimulate() {
-        if (UniversalTimeSingleton.Get.timeScale != 1) state = CelestialObjectState.KEPLERIAN;
+        if ((UniversalTimeSingleton.Get.timeScale != 1) && (state != CelestialObjectState.NON_ORBITTING)) state = CelestialObjectState.KEPLERIAN;
 
         switch (state) {
             case CelestialObjectState.KEPLERIAN:
                 HandleKeplerian();
                 break;
 
+            case CelestialObjectState.TRANSITIONING:
+                HandleNewtonian();
+                state = CelestialObjectState.NEWTONIAN;
+                break;
+
             case CelestialObjectState.NEWTONIAN:
                 HandleNewtonian();
+                break;
+
+            case CelestialObjectState.NON_ORBITTING:
                 break;
 
             default:
@@ -101,6 +111,8 @@ public class CelestialObject : MonoBehaviour
         foreach (CelestialObject child in children) {
             child.ChainSimulate();
         }
+
+        frameDelay = false;
     }
 
     /// <summary>
@@ -122,6 +134,11 @@ public class CelestialObject : MonoBehaviour
     /// Position self, then tell it's children to do the same
     /// </summary>
     public void ChainPosition() {
+
+        if (state == CelestialObjectState.NON_ORBITTING) {
+            // Do nothing
+            return;
+        }
 
         UpdateLocalSpace();
         
@@ -157,7 +174,10 @@ public class CelestialObject : MonoBehaviour
 //--#
     #region setters
 
-
+    
+    public void SetState(CelestialObjectState _state) {
+        state = _state;
+    }
     public void SetScaleSpaceObj(GameObject _scaleSpaceObj) { 
         scaleSpaceBody = _scaleSpaceObj.GetComponent<ScaleSpaceBody>();
         scaleSpaceBody.SetOrbit(this.refOrbit);
@@ -166,6 +186,7 @@ public class CelestialObject : MonoBehaviour
     public void SetLocalSpaceObj(GameObject _localSpaceObj) { 
         localSpaceBody = _localSpaceObj.GetComponent<LocalSpaceBody>(); 
         localSpaceBody.SetOrbit(this.refOrbit);
+        localSpaceBody.SetCelestialObject(this);
     }
     public void SetOrbitLineRenderer(OrbitLineRenderer _orbitLineRenderer) {
         orbitLineRenderer = _orbitLineRenderer;
@@ -320,6 +341,8 @@ public class CelestialObject : MonoBehaviour
 
 
     private void CheckDistance() {
+        if (frameDelay) return;
+
         if (localSpaceBody.GetPosition().magnitude > SpaceControllerSingleton.Get.localRange) {
             if (localSpaceBody.isLoaded) localSpaceBody.Unload();
             state = CelestialObjectState.KEPLERIAN;

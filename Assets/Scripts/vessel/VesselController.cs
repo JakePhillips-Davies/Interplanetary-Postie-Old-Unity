@@ -3,6 +3,7 @@ using UnityEngine;
 /*
 
 */
+[ExecuteInEditMode]
 public class VesselController : MonoBehaviour
 {
 //--#
@@ -14,6 +15,7 @@ public class VesselController : MonoBehaviour
     [field: SerializeField] public VesselRbObj rigidbodyRef {get; private set;}
     [field: SerializeField] public VesselColliderSpace colliderSpaceRef {get; private set;}
     [field: SerializeField] public VesselVisualObj visualObjRef {get; private set;}
+    [field: SerializeField] public CelestialObject celestialObject {get; private set;}
 
 
     #endregion
@@ -25,8 +27,10 @@ public class VesselController : MonoBehaviour
     #region Unity events
 
     
-    private void Awake() {
-        
+    private void Start() {
+        if (gameObject.TryGetComponent<LocalSpaceBody>(out LocalSpaceBody localSpaceBody)) {
+            celestialObject = localSpaceBody.refCO;
+        }
     }
 
 

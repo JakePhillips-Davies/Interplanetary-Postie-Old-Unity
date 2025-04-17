@@ -791,7 +791,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2553054437618617330}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: -0.70710576, z: -0, w: 0.7071079}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -810,8 +810,8 @@ Transform:
   - {fileID: 5066975746415858897}
   - {fileID: 6885719539136714777}
   - {fileID: 4730953141458384321}
-  m_Father: {fileID: 6346325561895773006}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 5509776740768588326}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &1516998094955965366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -824,7 +824,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 117e14ebf57fbf940a82142dc9107aea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <vesselController>k__BackingField: {fileID: 8859684125959457584}
+  <vesselController>k__BackingField: {fileID: 2620556856679427896}
 --- !u!1 &2856630453413657622
 GameObject:
   m_ObjectHideFlags: 0
@@ -850,7 +850,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2856630453413657622}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -859,7 +859,7 @@ Transform:
   - {fileID: 2351528287162325057}
   - {fileID: 8632046917234121945}
   - {fileID: 3312870073180231841}
-  m_Father: {fileID: 6346325561895773006}
+  m_Father: {fileID: 5509776740768588326}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6473088972946342395
 MonoBehaviour:
@@ -873,7 +873,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3b8f4603f0960344bc9e9596fa86c65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <vesselController>k__BackingField: {fileID: 8859684125959457584}
+  <vesselController>k__BackingField: {fileID: 2620556856679427896}
 --- !u!1 &2866453844046918601
 GameObject:
   m_ObjectHideFlags: 0
@@ -1760,6 +1760,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5509776740768588326}
   - component: {fileID: 5705633428702951183}
+  - component: {fileID: 2620556856679427896}
   m_Layer: 0
   m_Name: Local_Ship
   m_TagString: Untagged
@@ -1780,7 +1781,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6346325561895773006}
+  - {fileID: 2513308621894290371}
+  - {fileID: 3342143861279925336}
+  - {fileID: 37634822653097501}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5705633428702951183
@@ -1796,7 +1799,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <refOrbit>k__BackingField: {fileID: 0}
+  <refCO>k__BackingField: {fileID: 0}
   <rb>k__BackingField: {fileID: 8849829885112048825}
+--- !u!114 &2620556856679427896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4902611221435478912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 379a644077d1fdc4eab8254a8cbe8894, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <parentVessel>k__BackingField: {fileID: 0}
+  <rigidbodyRef>k__BackingField: {fileID: 7619848266560682499}
+  <colliderSpaceRef>k__BackingField: {fileID: 6473088972946342395}
+  <visualObjRef>k__BackingField: {fileID: 1516998094955965366}
+  <celestialObject>k__BackingField: {fileID: 0}
 --- !u!1 &5604023119083075271
 GameObject:
   m_ObjectHideFlags: 0
@@ -2030,7 +2051,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f466a673c78986a4f85d4e34b5597b13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <vesselController>k__BackingField: {fileID: 8859684125959457584}
+  <vesselController>k__BackingField: {fileID: 2620556856679427896}
 --- !u!1 &6194948281180668939
 GameObject:
   m_ObjectHideFlags: 0
@@ -2217,7 +2238,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2080926828429187033
 Transform:
   m_ObjectHideFlags: 0
@@ -2534,57 +2555,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
---- !u!1 &7159159934328021733
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6346325561895773006}
-  - component: {fileID: 8859684125959457584}
-  m_Layer: 0
-  m_Name: Ship Vessel
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6346325561895773006
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7159159934328021733}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2513308621894290371}
-  - {fileID: 3342143861279925336}
-  - {fileID: 37634822653097501}
-  m_Father: {fileID: 5509776740768588326}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8859684125959457584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7159159934328021733}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 379a644077d1fdc4eab8254a8cbe8894, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  <parentVessel>k__BackingField: {fileID: 0}
-  <rigidbodyRef>k__BackingField: {fileID: 7619848266560682499}
-  <colliderSpaceRef>k__BackingField: {fileID: 6473088972946342395}
-  <visualObjRef>k__BackingField: {fileID: 1516998094955965366}
 --- !u!1 &7595676682281987289
 GameObject:
   m_ObjectHideFlags: 0
@@ -2879,7 +2849,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8286906358685988756}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0.70710576, z: -0, w: 0.7071079}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2895,8 +2865,8 @@ Transform:
   - {fileID: 7454790382906427730}
   - {fileID: 5436421857506715628}
   - {fileID: 5404708573066796436}
-  m_Father: {fileID: 6346325561895773006}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 5509776740768588326}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!54 &8849829885112048825
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2936,7 +2906,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 516698850e249a043bad1f1e4f683f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <vesselController>k__BackingField: {fileID: 8859684125959457584}
+  <vesselController>k__BackingField: {fileID: 2620556856679427896}
 --- !u!1 &8340761897398876602
 GameObject:
   m_ObjectHideFlags: 0

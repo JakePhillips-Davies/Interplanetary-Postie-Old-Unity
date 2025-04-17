@@ -269,6 +269,10 @@ public class Orbit : MonoBehaviour
         
         cartesian_to_keplerian();
     }
+    public void SetParentOrbit(Orbit new_parent) {
+        parentOrbit = new_parent;
+        parentMu = new_parent.get_children_mu();
+    }
     public void SetLocalPos(Vector3d pos) {
         localPos = pos;
 
