@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - LeaveVesselTrigger
+  - EnterVesselTrigger
   layers:
   - Default
   - TransparentFX
@@ -31,7 +33,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - InteriorColliderSpace
   - 
   - 
   - 

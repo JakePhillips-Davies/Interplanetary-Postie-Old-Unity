@@ -1,9 +1,10 @@
+using UnityEditor;
 using UnityEngine;
 
 [ExecuteInEditMode]
 public class SolarSystemEditorTool : MonoBehaviour 
 {
-    
+    [SerializeField] private RootCelestialObject rootCelestialObject;
     [SerializeField] private bool isActive;
 
     private void Update() {
@@ -15,12 +16,11 @@ public class SolarSystemEditorTool : MonoBehaviour
         if( ScaleSpaceSingleton.Get == null ) ScaleSpaceSingleton.SetSingleton(Object.FindFirstObjectByType<ScaleSpaceSingleton>());
         if( UniversalTimeSingleton.Get == null ) UniversalTimeSingleton.SetSingleton(Object.FindFirstObjectByType<UniversalTimeSingleton>());
         if( SpaceControllerSingleton.Get == null ) SpaceControllerSingleton.SetSingleton(Object.FindFirstObjectByType<SpaceControllerSingleton>());
-        if( CelestialPhysicsSingleton.Get == null ) CelestialPhysicsSingleton.SetSingleton(Object.FindFirstObjectByType<CelestialPhysicsSingleton>());
 
         if ( !isActive )
             return;
 
-        CelestialPhysicsSingleton.Get.Validate();
+        rootCelestialObject.Validate();
 
     }
 

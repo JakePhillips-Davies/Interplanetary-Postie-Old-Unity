@@ -2,10 +2,11 @@ using UnityEngine;
 
 [ExecuteInEditMode]
 public class MatchRotation : MonoBehaviour {
-    [SerializeField] private Transform target;
+    private GameObject target;
 
     private void LateUpdate() {
+        target = SpaceControllerSingleton.Get.cameraObj;
         if (target != null)
-            transform.rotation = target.rotation;
+            transform.rotation = target.transform.rotation;
     }
 }

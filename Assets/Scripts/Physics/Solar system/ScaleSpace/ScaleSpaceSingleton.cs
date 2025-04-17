@@ -5,6 +5,8 @@ public class ScaleSpaceSingleton : MonoBehaviour
 {
     
     public static ScaleSpaceSingleton Get { get; private set; } = null;
+
+    [field: SerializeField] public GameObject cam { get; private set; }
     
     [SerializeField] float spaceScaleDownFactor = 10000000;
 

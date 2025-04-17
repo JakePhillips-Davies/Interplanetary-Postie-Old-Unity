@@ -13,12 +13,12 @@ public class LocalSpaceBody : MonoBehaviour
         Load/Unload
     */
 
+    private void Start() {
+        if (rb != null) rb.mass = (float)refOrbit.get_mass();
+    }
+
     public void Load() {
         isLoaded = true;
-
-        Transform[] children = new Transform[transform.childCount];
-        for (int i = 0; i < children.Length; i++)
-            transform.GetChild(i).gameObject.SetActive(true);
 
         if (rb != null)
             rb.isKinematic = false;
@@ -27,10 +27,6 @@ public class LocalSpaceBody : MonoBehaviour
     }
     public void Unload() {
         isLoaded = false;
-
-        Transform[] children = new Transform[transform.childCount];
-        for (int i = 0; i < children.Length; i++)
-            transform.GetChild(i).gameObject.SetActive(false);
 
         if (rb != null)
             rb.isKinematic = true;
@@ -45,5 +41,15 @@ public class LocalSpaceBody : MonoBehaviour
     */
     
     public void SetOrbit(Orbit orbit) { refOrbit = orbit; }
+
+    public void SetPosition(Vector3 pos) {
+        if (rb != null) rb.transform.position = pos;
+        else transform.position = pos;
+    }
+
+    public Vector3 GetPosition() {
+        if (rb != null) return rb.transform.position;
+        else return transform.position;
+    }
 
 }

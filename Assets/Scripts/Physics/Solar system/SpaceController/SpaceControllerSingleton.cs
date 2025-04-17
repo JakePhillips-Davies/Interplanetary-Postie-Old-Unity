@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using EditorAttributes;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -8,14 +8,34 @@ public class SpaceControllerSingleton : MonoBehaviour
     public static SpaceControllerSingleton Get { get; private set; } = null;
 
     public CelestialObject[] objectList { get; private set; }
+
+    [field: Space(7)]
+    [field: Title("Refs")]
     [field: SerializeField] public CelestialObject focus { get; private set; }
+    [field: SerializeField] public GameObject cameraObj { get; private set; }
     [field: SerializeField] public ScaleSpaceBodiesPositioner scaleSpaceBodiesPositioner { get; private set; }
     [field: SerializeField] public LocalSpacePositioner localSpacePositioner { get; private set; }
     
     [field: SerializeField] public Transform scaleSpaceContainer { get; private set; }
     [field: SerializeField] public Transform localSpaceContainer { get; private set; }
     
+    [field: Space(7)]
+    [field: Title("--")]
     [field: SerializeField] public float localRange { get; private set; }
+    [field: SerializeField] public int patchDepthLimit { get; private set; } = 5;
+
+    [field: SerializeField] public Material lineMat;
+
+    [field: Space(7)]
+    [field: Title("Editor Gizmos")]
+    [field: SerializeField] public bool SOIGizmo { get; private set; } = true;
+    [field: SerializeField] public bool VelGizmo { get; private set; } = true;
+
+    [SerializeField, Button] private void Update_Spaces() {
+        ClearSpaces();
+        UpdateObjectList();
+        UpdateCelestialObjects();
+    }
 
     private void Awake() {
         if ( Get == null ) {
@@ -30,10 +50,6 @@ public class SpaceControllerSingleton : MonoBehaviour
         UpdateObjectList();
         UpdateCelestialObjects();
 
-    }
-    private void FixedUpdate() {
-        scaleSpaceBodiesPositioner.UpdatePositions();
-        localSpacePositioner.UpdatePositions();
     }
 
 
@@ -50,11 +66,11 @@ public class SpaceControllerSingleton : MonoBehaviour
         );
     }
     public void RemoveCelestialObject(CelestialObject celestialObject) {
-        if (celestialObject.localSpaceObj != null)
-            DestroyImmediate(celestialObject.localSpaceObj);
+        if (celestialObject.localSpaceBody != null)
+            DestroyImmediate(celestialObject.localSpaceBody);
         
-        if (celestialObject.scaleSpaceObj != null)
-            DestroyImmediate(celestialObject.scaleSpaceObj);
+        if (celestialObject.scaleSpaceBody != null)
+            DestroyImmediate(celestialObject.scaleSpaceBody);
     }
     public void UpdateCelestialObjects() {
         foreach (CelestialObject celestialObject in objectList) {
@@ -74,6 +90,10 @@ public class SpaceControllerSingleton : MonoBehaviour
     /*
         Misc
     */
+
+    public void SetCameraObj(GameObject cam) {
+        cameraObj = cam;
+    }
 
     public void UpdateObjectList() {
         List<CelestialObject> tempList = new();

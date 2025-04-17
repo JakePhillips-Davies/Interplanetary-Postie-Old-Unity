@@ -15,7 +15,7 @@ public class ScaleSpaceBodiesPositioner : MonoBehaviour
             posFromFocus = orbit.GetWorldPos() - focusOrbit.GetWorldPos();
             posFromFocus = new(posFromFocus.x, posFromFocus.z, -posFromFocus.y);
 
-            _object.scaleSpaceObj.transform.position = (Vector3)(posFromFocus * ScaleSpaceSingleton.Get.GetSpaceScale()); 
+            _object.scaleSpaceBody.transform.position = (Vector3)(posFromFocus * ScaleSpaceSingleton.Get.GetSpaceScale()); 
 
         }
     }

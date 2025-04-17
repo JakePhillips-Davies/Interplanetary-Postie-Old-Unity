@@ -6,14 +6,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private int walkSpeed;
     [SerializeField] private int sprintSpeed;
     [SerializeField] private int crouchSpeed;
-    [SerializeField] private int airSpeed;
+    [SerializeField] private int evaPackForce;
+    [SerializeField] private float rotationTorque;
+    [SerializeField] private Vector3 gravity;
 
     [Space(7)]
     [SerializeField] private float groundDrag;
     [SerializeField] private float airDrag;
-
-    [Space(7)]
-    [SerializeField] private LayerMask mask;
     
     [Space(7)]
     [SerializeField] private float jumpForce;
@@ -26,12 +25,19 @@ public class PlayerMovement : MonoBehaviour
     [Space(7)]
     [Header("Key Binds")]
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private KeyCode rotateLeft = KeyCode.Q;
+    [SerializeField] private KeyCode rotateRight = KeyCode.E;
     [SerializeField] private KeyCode sprint = KeyCode.LeftShift;
     [SerializeField] private KeyCode crouch = KeyCode.LeftControl;
+
+    [Space(7)]
+    [Header("refs")]
+    [SerializeField] private PlayerCam cam;
 
 
     private float forwardInput;
     private float rightInput;
+    private float verticalInput;
     private Vector3 moveDirection;
     private float moveSpeed;
 
@@ -46,14 +52,8 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
 
     //---                                ---//
-    private void OnTriggerEnter(Collider other) {
-        transform.SetParent(other.transform.parent);
-    }
-    private void OnTriggerExit(Collider other) {
-        transform.SetParent(null);
-    }
 
-    void Start() 
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
@@ -77,6 +77,8 @@ public class PlayerMovement : MonoBehaviour
             crouching = false;
         }
 
+        HandleRotation();
+
         GetMovement();
 
         if(Input.GetKey(jumpKey))
@@ -85,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
         MovePlayer();
 
         Drag();
+
     }
 
 
@@ -104,7 +107,10 @@ public class PlayerMovement : MonoBehaviour
         forwardInput = Input.GetAxisRaw("Vertical");
         rightInput = Input.GetAxisRaw("Horizontal");
 
-        moveDirection = (transform.forward * forwardInput + transform.right * rightInput).normalized;
+        if (!grounded) verticalInput = Input.GetAxisRaw("UppyDowny");
+        else verticalInput = 0;
+
+        moveDirection = (transform.forward * forwardInput + transform.right * rightInput + transform.up * verticalInput).normalized;
         if(grounded){
             moveSpeed *= Mathf.Pow(1 + Vector3.Dot(moveDirection, hitInfo.normal), 1.3f); // make the player slower on steeper terrain by multiplying movespeed by the dot product + 1
             moveDirection = Vector3.ProjectOnPlane(moveDirection, hitInfo.normal);
@@ -116,10 +122,10 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveForce;
 
-        if(grounded)
-            moveForce = moveDirection.normalized * moveSpeed * 62;
-        else {
-            moveForce = (moveDirection.normalized * airSpeed * 62) - (transform.up * 9.81f * 62);
+        moveForce = moveDirection.normalized * moveSpeed * rb.mass;
+        
+        if(!grounded) {
+            moveForce = moveDirection.normalized * (Input.GetKey(sprint) ? evaPackForce * 1.5f : evaPackForce) + gravity * rb.mass;
         }
 
         rb.AddForce(moveForce, ForceMode.Force);
@@ -127,11 +133,14 @@ public class PlayerMovement : MonoBehaviour
 
     void GroundCheck()
     {
-        if(crouching){
-            grounded = Physics.SphereCast(transform.position, groundCheckSphereRadius, -transform.up, out hitInfo, groundCheckDistanceCrouch, mask);
+        if(gravity.sqrMagnitude == 0) {
+            grounded = false;
+        }
+        else if(crouching){
+            grounded = Physics.SphereCast(transform.position, groundCheckSphereRadius, -transform.up, out hitInfo, groundCheckDistanceCrouch, 1 << gameObject.layer);
         }
         else
-            grounded = Physics.SphereCast(transform.position, groundCheckSphereRadius, -transform.up, out hitInfo, groundCheckDistance, mask);
+            grounded = Physics.SphereCast(transform.position, groundCheckSphereRadius, -transform.up, out hitInfo, groundCheckDistance, 1 << gameObject.layer);
     }
 
     void Drag()
@@ -157,6 +166,29 @@ public class PlayerMovement : MonoBehaviour
     void ResetJump()
     {
         readyToJump = true;
+    }
+
+    void HandleRotation() {
+
+        if (gravity.magnitude != 0) {
+
+            float rotationY = transform.rotation.eulerAngles.y;
+
+            transform.up = -gravity;
+
+            transform.localRotation = Quaternion.Euler(new(transform.rotation.eulerAngles.x, rotationY, transform.rotation.eulerAngles.z));
+
+        }
+        else {
+
+            transform.Rotate(cam.transform.localEulerAngles, Space.Self);
+            cam.transform.localEulerAngles = Vector3.zero;
+
+            if (Input.GetKey(rotateLeft)) transform.Rotate(transform.forward * rotationTorque * Time.fixedDeltaTime, Space.World);
+            else if (Input.GetKey(rotateRight)) transform.Rotate(transform.forward * -rotationTorque * Time.fixedDeltaTime, Space.World);
+
+        }
+
     }
 
     public void Teleport(Transform to)

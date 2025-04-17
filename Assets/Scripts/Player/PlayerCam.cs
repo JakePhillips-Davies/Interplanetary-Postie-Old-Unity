@@ -1,9 +1,5 @@
-using System;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
-using UnityEngine.UI;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerCam : MonoBehaviour
 {
@@ -11,25 +7,31 @@ public class PlayerCam : MonoBehaviour
     [SerializeField] private float sensitivity;
     private float yRot;
     private float xRot;
-    [SerializeField] private KeyCode freeMouseKey;
+    [SerializeField] private KeyCode freeMouseKey = KeyCode.R;
     public bool isFreeLooking { get; set; } = false;
 
     [Header("")]
-    [Header("Body reference")]
+    [Header("Refs")]
     [SerializeField] private GameObject body;
+    [SerializeField] private Camera cam;
 
     [Header("")]
     [Header("Interaction")]
     [SerializeField] private int reach;        public int getReach() { return reach; }
     [SerializeField] private int interactionReach;
     [SerializeField] private KeyCode interactkey;
-    [SerializeField] private GameObject panel;
-    [SerializeField] private Text text;
-    [Header("")]
-    [SerializeField] private GameObject buildingTool;
-    [SerializeField] private KeyCode buildingToolKey;
+    private bool interactDelay = false;
     private RaycastHit hit;
     private Ray interactRay;        public Ray GetInteractRay() { return interactRay; }
+
+    private void Awake() {
+        Camera.main.GetUniversalAdditionalCameraData().cameraStack.Add(cam);
+    }
+
+    private void OnEnable() {
+        interactDelay = true;
+        SpaceControllerSingleton.Get.SetCameraObj(this.gameObject);
+    }
 
     void LateUpdate()
     {
@@ -40,9 +42,8 @@ public class PlayerCam : MonoBehaviour
         if(!isFreeLooking){
             Cursor.lockState = CursorLockMode.Locked;
 
-            yRot += Input.GetAxisRaw("Mouse X") * sensitivity;
-
-            xRot -= Input.GetAxisRaw("Mouse Y") * sensitivity;
+            yRot = Input.GetAxisRaw("Mouse X") * sensitivity;
+            xRot = -Input.GetAxisRaw("Mouse Y") * sensitivity;
 
             transform.Rotate(xRot, 0, 0, Space.Self);
             Vector3 eulerAngles = transform.localEulerAngles;
@@ -51,50 +52,32 @@ public class PlayerCam : MonoBehaviour
             transform.localRotation = Quaternion.Euler(eulerAngles.x, 0, 0);
 
             body.transform.Rotate(0, yRot, 0, Space.Self);
-            body.transform.localRotation = Quaternion.Euler(0, body.transform.localEulerAngles.y, 0);
-            xRot = 0;
-            yRot = 0;
         }
         else{
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.Confined;
         }
 
-        interactRay = gameObject.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
+        interactRay = cam.ScreenPointToRay (Input.mousePosition);
 
         activatableHandler();
-
-        if(Input.GetKeyDown(buildingToolKey) && (buildingTool != null)) buildingTool.SetActive(!buildingTool.activeSelf);
-    }
-
-    private void OnEnable() {
-        if(buildingTool != null) buildingTool.SetActive(false);
-        Cursor.visible = true;
-
-    }
-    private void OnDisable() {
-         if(buildingTool != null) buildingTool.SetActive(false);
     }
 
     private void OnDrawGizmos() {
         
-        Gizmos.DrawRay(transform.position, interactRay.direction * reach);
+        Gizmos.DrawRay(interactRay.origin, interactRay.direction * reach);
 
     }
 
-    void activatableHandler()
-    {
-        // text.text = "";
-        // panel.SetActive(false);
+    void activatableHandler() {
+        if(interactDelay) {
+            interactDelay = false;
+            return;
+        }
 
-        // if(Physics.Raycast(transform.position, transform.forward, out hit, interactionReach, LayerMask.GetMask("Activator"))){
-        //     if(Input.GetKeyDown(interactkey) && (hit.transform != null) && (hit.collider.GetComponent<Activator>() != null))
-        //         hit.collider.GetComponent<Activator>().Activate();
-
-        //     if((hit.transform != null) && (hit.collider.GetComponent<Activator>() != null)){
-        //         panel.SetActive(true);
-        //         text.text = String.Format("{0}", hit.collider.name);
-        //     }
-        // }
+        if(Physics.Raycast(transform.position, transform.forward, out hit)){
+            if(Input.GetKeyDown(interactkey) && (hit.transform != null) && (hit.collider.GetComponent<Activator>() != null))
+                hit.collider.GetComponent<Activator>().Activate();
+        }
     }
 }

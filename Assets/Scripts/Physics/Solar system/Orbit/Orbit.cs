@@ -22,7 +22,7 @@ public class Orbit : MonoBehaviour
     [SerializeField] private double mass;
 
     // Common orbital parameters.
-    private double mu = 1;           // Standard gravitational parameter of the parent celestial body.
+    private double parentMu = 1;           // Standard gravitational parameter of the parent celestial body.
     [SerializeField] private double periapsis = 0.0;    // Distance to the lowest point of the orbit.
     [SerializeField] private double eccentricity = 0.0; // Eccentricity of the orbit;
                                                 // 0 - circular orbit, (0 - 1) - elliptical, 1 - parabolic, (1 - +\infty) - hyperbolic.
@@ -61,11 +61,11 @@ public class Orbit : MonoBehaviour
             Unity
     */
 
-    private void Start() {
+    public void Startup() {
         update_children_mu();
         if (transform.parent.TryGetComponent<Orbit>(out var parent)) {
             parentOrbit = parent;
-            mu = parent.get_children_mu();
+            parentMu = parent.get_children_mu();
         }
         orbitStartTime = UniversalTimeSingleton.Get.time;
         _physics_process(UniversalTimeSingleton.Get.time);
@@ -75,7 +75,7 @@ public class Orbit : MonoBehaviour
         if (transform.parent != null)
             if (transform.parent.TryGetComponent<Orbit>(out var parent)){
                 parentOrbit = parent;
-                mu = parent.get_children_mu();
+                parentMu = parent.get_children_mu();
             }
         if (!Application.isPlaying) {
             true_anomaly = 0.0;
@@ -115,7 +115,7 @@ public class Orbit : MonoBehaviour
     } 
     public void InitialiseFromOrbitInfo(OrbitInfo from) {
         this.mass=from.mass;
-        this.mu=from.mu;
+        this.parentMu=from.mu;
         this.eccentricity=from.eccentricity;
         this.periapsis=from.periapsis;
         this.longitude_of_ascending_node=from.longitude_of_ascending_node;
@@ -137,8 +137,8 @@ public class Orbit : MonoBehaviour
     private static Vector3d reference_direction = Vector3d.right;
 
     // Integrals calculation from keplerian parameters.
-    private double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Math.Sqrt(mu * get_semi_latus_rectum()); }
-    private double get_specific_mechanical_energy_from_keplerian() { return -mu / (2.0 * get_semi_major_axis()); }
+    private double get_specific_angular_momentum_from_keplerian() { return (clockwise ? 1.0 : -1.0) * Math.Sqrt(parentMu * get_semi_latus_rectum()); }
+    private double get_specific_mechanical_energy_from_keplerian() { return -parentMu / (2.0 * get_semi_major_axis()); }
     public double get_mean_motion_from_keplerian()
     {
         //double abs_semi_major_axis = Math.abs(get_semi_major_axis());
@@ -146,7 +146,7 @@ public class Orbit : MonoBehaviour
 
         double multiplier = (eccentricity == 1.0) ? 1.0 : Math.Abs(1.0 - eccentricity * eccentricity);
         multiplier = Math.Sqrt(multiplier * multiplier * multiplier);
-        return multiplier * mu * mu / (specific_angular_momentum * specific_angular_momentum * specific_angular_momentum);
+        return multiplier * parentMu * parentMu / (specific_angular_momentum * specific_angular_momentum * specific_angular_momentum);
     }
 
     public Vector3d GetLocalPos() {
@@ -160,10 +160,6 @@ public class Orbit : MonoBehaviour
         return localVel;
     }
 
-    private void on_keplerian_parameters_changed() {
-        return;
-    }
-
     public double GetOrbitStartTime() { return orbitStartTime; }
     public void SetOrbitStartTime(double time) { orbitStartTime = time; }
 
@@ -174,9 +170,8 @@ public class Orbit : MonoBehaviour
 
     public double get_distance() { return distance; }
 
-
     // Keplerian parameters.
-    public double get_mu() { return mu; }
+    public double GetParentMu() { return parentMu; }
 
     public double get_periapsis() { return periapsis; }
     
@@ -217,7 +212,7 @@ public class Orbit : MonoBehaviour
 
     // Get gravitational parameter used by children.
     public double get_children_mu()
-    { return CelestialPhysicsSingleton.gravitational_constant * mass; }
+    { return ConicMath.G * mass; }
 
     private void update_children_mu() {
         double children_mu = get_children_mu();
@@ -263,9 +258,8 @@ public class Orbit : MonoBehaviour
 
     private void set_mu(double new_mu)
     {
-        mu = Math.Max(new_mu, 0.0);
+        parentMu = Math.Max(new_mu, 0.0);
         _physics_process(UniversalTimeSingleton.Get.time);
-        on_keplerian_parameters_changed();  
     }
 
     private Vector3d get_linear_velocity() { return linear_velocity; }
@@ -275,10 +269,23 @@ public class Orbit : MonoBehaviour
         
         cartesian_to_keplerian();
     }
+    public void SetLocalPos(Vector3d pos) {
+        localPos = pos;
+
+        distance = localPos.magnitude;
+
+        worldPos = localPos;
+        if (parentOrbit != null) {
+            worldPos += parentOrbit.worldPos;
+        }
+    }
     public void SetCartesianElements(Vector3d newVel, Vector3d newPos)
     {
         linear_velocity = newVel;
+        localVel = newVel;
         localPos = newPos;
+
+        distance = localPos.magnitude;
 
         worldPos = localPos;
         if (parentOrbit != null) {
@@ -308,7 +315,7 @@ public class Orbit : MonoBehaviour
         double new_mean_anomaly = mean_anomaly + (time - orbitStartTime) * mean_motion;
         if (eccentricity < 1.0) { new_mean_anomaly = Math.IEEERemainder(new_mean_anomaly, 2.0 * Math.PI); }
 
-        double true_anomaly = CelestialPhysicsSingleton.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, this.true_anomaly);
+        double true_anomaly = ConicMath.mean_anomaly_to_true_anomaly(new_mean_anomaly, eccentricity, this.true_anomaly);
 
         var results = GetCartesianAtTrueAnomaly(true_anomaly, updating);
 
@@ -379,29 +386,27 @@ public class Orbit : MonoBehaviour
         longitude_of_ascending_node = Math.Atan2(angular_momentum[0],-angular_momentum[1]);
 
         // eccentricity
-        double E = 0.5 * velocity_quad - mu / distance;
-        double semi_major_axis = -mu / (2 * E);
-        eccentricity = Math.Sqrt(1 - (specific_angular_momentum*specific_angular_momentum) / (semi_major_axis * mu));
+        double E = 0.5 * velocity_quad - parentMu / distance;
+        double semi_major_axis = -parentMu / (2 * E);
+        eccentricity = Math.Sqrt(1 - (specific_angular_momentum*specific_angular_momentum) / (semi_major_axis * parentMu));
 
         mean_motion = get_mean_motion_from_keplerian(); // TODO direct calculation from cartesian.
 
         // Periapsis height.
-        periapsis = specific_angular_momentum * specific_angular_momentum / (mu * (1.0 + eccentricity));
+        periapsis = specific_angular_momentum * specific_angular_momentum / (parentMu * (1.0 + eccentricity));
 
         // True and mean anomaly.
         double p = semi_major_axis * (1 - eccentricity*eccentricity);
-        true_anomaly = Math.Atan2(Math.Sqrt(p / mu) * Vector3d.Dot(localPos, localVel),
+        true_anomaly = Math.Atan2(Math.Sqrt(p / parentMu) * Vector3d.Dot(localPos, localVel),
                                   p - distance);
                                   
-        mean_anomaly = CelestialPhysicsSingleton.true_anomaly_to_mean_anomaly(true_anomaly, eccentricity);
+        mean_anomaly = ConicMath.true_anomaly_to_mean_anomaly(true_anomaly, eccentricity);
         orbitStartTime = UniversalTimeSingleton.Get.time;
 
         // LP
         longitude_of_perigee = Math.Atan2(localPos[2] / (Math.Sin(inclination) + double.Epsilon),
                                           localPos[0]*Math.Cos(longitude_of_ascending_node) + localPos[1]*Math.Sin(longitude_of_ascending_node));
         longitude_of_perigee -= true_anomaly;
-
-        on_keplerian_parameters_changed();
     }
 
     // Conversion between local (on orbital plane) and global cartesian coordinates.
@@ -415,6 +420,12 @@ public class Orbit : MonoBehaviour
     }
     private void cartesian_to_local_cartesian() {
         localVel = linear_velocity;
+    }
+
+    
+
+    public Vector3d GetNewtonianAcceleration() {
+        return (-localPos.normalized) * parentMu / localPos.sqrMagnitude;
     }
 
 
@@ -431,7 +442,7 @@ public class Orbit : MonoBehaviour
                 transform.parent = new_parent.transform;
                 localPos += parentOrbit.localPos;
                 
-                mu = new_parent.get_children_mu();
+                parentMu = new_parent.get_children_mu();
                 
                 set_linear_velocity(localVel + parentOrbit.GetLocalVel());
 
@@ -448,7 +459,7 @@ public class Orbit : MonoBehaviour
         transform.SetParent(new_parent.transform, true);
         localPos -= new_parent.localPos;
         
-        mu = new_parent.get_children_mu();
+        parentMu = new_parent.get_children_mu();
         
         set_linear_velocity(localVel - new_parent.localVel);
 
@@ -490,7 +501,6 @@ public class Orbit : MonoBehaviour
     */
     private void _ready()
     {
-        on_keplerian_parameters_changed();
         update_children_mu();
     }
 

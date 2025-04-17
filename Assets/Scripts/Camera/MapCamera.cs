@@ -18,6 +18,9 @@ public class MapCamera : MonoBehaviour
     }
 
     void Update() {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         if (Input.GetKey(moveKey)) {
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");
