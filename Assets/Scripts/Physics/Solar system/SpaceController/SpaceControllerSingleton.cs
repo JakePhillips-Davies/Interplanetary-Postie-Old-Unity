@@ -15,6 +15,7 @@ public class SpaceControllerSingleton : MonoBehaviour
     [field: SerializeField] public GameObject cameraObj { get; private set; }
     [field: SerializeField] public ScaleSpaceBodiesPositioner scaleSpaceBodiesPositioner { get; private set; }
     [field: SerializeField] public LocalSpacePositioner localSpacePositioner { get; private set; }
+    [field: SerializeField] public GameObject player { get; private set; }
     
     [field: SerializeField] public Transform scaleSpaceContainer { get; private set; }
     [field: SerializeField] public Transform localSpaceContainer { get; private set; }
@@ -94,6 +95,9 @@ public class SpaceControllerSingleton : MonoBehaviour
     public void SetCameraObj(GameObject cam) {
         cameraObj = cam;
     }
+    public void Setplayer(GameObject player) {
+        this.player = player;
+    }
 
     public void UpdateObjectList() {
         List<CelestialObject> tempList = new();
@@ -103,6 +107,10 @@ public class SpaceControllerSingleton : MonoBehaviour
         }
 
         objectList = tempList.ToArray();
+    }
+
+    public Vector3d GetFocusPosition() {
+        return focus.GetOrbitPosition();
     }
     
     public static void SetSingleton(SpaceControllerSingleton input) { Get = input; }

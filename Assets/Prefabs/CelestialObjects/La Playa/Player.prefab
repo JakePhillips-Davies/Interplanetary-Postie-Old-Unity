@@ -25,8 +25,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 412873089311320280}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.10601118, y: 0.703484, z: -0.34476194, w: -0.6123815}
-  m_LocalPosition: {x: 10.930002, y: 5.5000005, z: 10.28}
+  m_LocalRotation: {x: 0.16724744, y: 0.96977806, z: -0.08744328, w: -0.15463658}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -34,7 +34,7 @@ Transform:
   - {fileID: 3794728447378519211}
   - {fileID: 7245216274855892742}
   m_Father: {fileID: 5085314599130806122}
-  m_LocalEulerAnglesHint: {x: 37.945, y: 269.109, z: 20.262}
+  m_LocalEulerAnglesHint: {x: 6.77, y: 199.359, z: 20.726}
 --- !u!114 &3960749587629176877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,7 +74,7 @@ Transform:
   m_GameObject: {fileID: 1848934160024089362}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.74, y: 16.46, z: 5.49}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -547,14 +547,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8033801154442020599}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.10601118, y: 0.703484, z: -0.34476194, w: -0.6123815}
-  m_LocalPosition: {x: 10.930002, y: 5.5000005, z: 10.28}
+  m_LocalRotation: {x: 0.16724744, y: 0.96977806, z: -0.08744328, w: -0.15463658}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6618038788161292115}
   m_Father: {fileID: 5085314599130806122}
-  m_LocalEulerAnglesHint: {x: 37.945, y: 269.109, z: 20.262}
+  m_LocalEulerAnglesHint: {x: 6.77, y: 199.359, z: 20.726}
 --- !u!136 &8587341873509611907
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -696,7 +696,7 @@ MonoBehaviour:
   sensitivity: 2
   freeMouseKey: 114
   body: {fileID: 8033801154442020599}
-  cam: {fileID: 7663292862103631923}
+  <cam>k__BackingField: {fileID: 7663292862103631923}
   reach: 10
   interactionReach: 10
   interactkey: 102

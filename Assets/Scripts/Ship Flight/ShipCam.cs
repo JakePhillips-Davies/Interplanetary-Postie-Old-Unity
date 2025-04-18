@@ -31,8 +31,8 @@ public class ShipCam : MonoBehaviour
         Camera.main.GetUniversalAdditionalCameraData().cameraStack.Add(cam);
     }
 
-    private void Start() {
-        SpaceControllerSingleton.Get.SetCameraObj(this.gameObject);
+    private void OnEnable() {
+        SpaceControllerSingleton.Get.SetCameraObj(cam.gameObject);
     }
 
 

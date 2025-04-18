@@ -13,7 +13,7 @@ public class PlayerCam : MonoBehaviour
     [Header("")]
     [Header("Refs")]
     [SerializeField] private GameObject body;
-    [SerializeField] private Camera cam;
+    [field: SerializeField] public Camera cam { get; private set; }
 
     [Header("")]
     [Header("Interaction")]
@@ -30,7 +30,7 @@ public class PlayerCam : MonoBehaviour
 
     private void OnEnable() {
         interactDelay = true;
-        SpaceControllerSingleton.Get.SetCameraObj(this.gameObject);
+        SpaceControllerSingleton.Get.SetCameraObj(cam.gameObject);
     }
 
     void LateUpdate()

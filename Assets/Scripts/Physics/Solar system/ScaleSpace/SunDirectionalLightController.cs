@@ -13,7 +13,7 @@ public class SunDirectionalLightController : MonoBehaviour
 
     private void Update() {
         sunPos = theSun.GetWorldPos();
-        focusPos = SpaceControllerSingleton.Get.focus.refOrbit.GetWorldPos();
+        focusPos = SpaceControllerSingleton.Get.GetFocusPosition();
 
         sunToZero = focusPos - sunPos;
         sunToZero /= 10000000000;

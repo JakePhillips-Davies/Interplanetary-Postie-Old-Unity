@@ -60,6 +60,10 @@ public class PlayerMovement : MonoBehaviour
         readyToJump = true;
     }
 
+    private void Start() {
+        SpaceControllerSingleton.Get.Setplayer(transform.parent.gameObject); // Ehhh could be better, but whatever
+    }
+
     void FixedUpdate()
     {
 
@@ -88,6 +92,13 @@ public class PlayerMovement : MonoBehaviour
 
         Drag();
 
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.M)) {
+            SwitchMapView();
+        }
     }
 
 
@@ -200,5 +211,23 @@ public class PlayerMovement : MonoBehaviour
     private void OnDrawGizmos() {
         Gizmos.DrawWireSphere(transform.position-transform.up*groundCheckDistanceCrouch, groundCheckSphereRadius);
         Gizmos.DrawWireSphere(transform.position-transform.up*groundCheckDistance, groundCheckSphereRadius);
+    }
+
+
+    private void SwitchMapView() {
+        ScaleSpaceSingleton.Get.cam.GetComponent<MatchRotation>().enabled = !ScaleSpaceSingleton.Get.cam.GetComponent<MatchRotation>().enabled;
+        ScaleSpaceSingleton.Get.cam.GetComponent<MapCamera>().enabled = !ScaleSpaceSingleton.Get.cam.GetComponent<MapCamera>().enabled;
+
+        ScaleSpaceSingleton.Get.cam.transform.position = Vector3.zero;
+
+        if (ScaleSpaceSingleton.Get.cam.GetComponent<MapCamera>().enabled) {
+            cam.cam.gameObject.SetActive(false);
+            cam.gameObject.SetActive(false);
+            ScaleSpaceSingleton.Get.cam.GetComponent<Camera>().fieldOfView = 75;
+        }
+        else {
+            cam.gameObject.SetActive(true);
+            cam.cam.gameObject.SetActive(true);
+        }
     }
 }

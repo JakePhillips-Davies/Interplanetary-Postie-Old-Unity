@@ -2156,6 +2156,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29212fed0007ed04fb63dc3ee0b4172b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fromPlayer: 1
+  toPlayer: 0
   swapFrom: {fileID: 0}
   swapTo: {fileID: 6788854340442453811}
 --- !u!1 &6713135704451109844
@@ -2272,7 +2274,7 @@ MonoBehaviour:
   shipRigidbody: {fileID: 8849829885112048825}
   <shipManoeuvringThrust>k__BackingField: 50000
   <maxThrust>k__BackingField: 1000000
-  exit: 0
+  exit: 102
   freeCam: 9
   thrustUp: 304
   thrustDown: 306
@@ -2288,6 +2290,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29212fed0007ed04fb63dc3ee0b4172b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fromPlayer: 0
+  toPlayer: 1
   swapFrom: {fileID: 6788854340442453811}
   swapTo: {fileID: 0}
 --- !u!1 &6859847189833098560

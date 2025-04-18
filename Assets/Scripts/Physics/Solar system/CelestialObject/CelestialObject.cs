@@ -263,7 +263,7 @@ public class CelestialObject : MonoBehaviour
     Vector3d posFromFocus;
     
     private void UpdateLocalSpace() {
-        posFromFocus = refOrbit.GetWorldPos() - SpaceControllerSingleton.Get.focus.refOrbit.GetWorldPos();
+        posFromFocus = refOrbit.GetWorldPos() - SpaceControllerSingleton.Get.GetFocusPosition();
         posFromFocus = new(posFromFocus.x, posFromFocus.z, -posFromFocus.y);
 
         // Logging for debugging
@@ -365,6 +365,14 @@ public class CelestialObject : MonoBehaviour
                 state = CelestialObjectState.KEPLERIAN;
             }
         }
+    }
+
+    public Vector3d GetOrbitPosition() {
+        if (state == CelestialObjectState.NON_ORBITTING)
+            return localSpaceBody.GetComponent<VesselController>().parentVessel.celestialObject.GetOrbitPosition();
+
+        else
+            return refOrbit.GetWorldPos();
     }
 
 
