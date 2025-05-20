@@ -1,9 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/style.uss?fileID=7433441132597879392&amp;guid=4084239d43e6f6c4b98b90cebbd9d55a&amp;type=3#style" />
-    <ui:Slider label="Time Scale" value="1" high-value="32" enabled="true" name="Slider" data-source-type="UniversalTimeSingleton, Assembly-CSharp" style="color: rgb(255, 255, 255); font-size: 12px; -unity-text-align: middle-left; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; padding-top: 4px; padding-right: 30px; padding-bottom: 4px; padding-left: 5px; background-color: rgba(35, 44, 51, 0.83); margin-right: 4px; -unity-font-style: bold; -unity-text-outline-width: 0; text-shadow: 0 0 1px rgb(0, 0, 0); align-self: auto; align-content: flex-start; justify-content: flex-start; align-items: stretch; height: 50px;">
-        <Bindings>
-            <ui:DataBinding property="value" data-source-path="timeScale" data-source-type="UniversalTimeSingleton, Assembly-CSharp" binding-mode="TwoWay" update-trigger="EveryUpdate" />
-            <ui:DataBinding property="label" data-source-path="timeScaleString" binding-mode="ToTarget" data-source-type="UniversalTimeSingleton, Assembly-CSharp" />
-        </Bindings>
-    </ui:Slider>
-</ui:UXML>
