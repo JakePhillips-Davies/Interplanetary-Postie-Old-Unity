@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Interplanetary-Postie-Rework.sln"
+    "dotnet.defaultSolution": "Interplanetary-Postie.sln"
 }
