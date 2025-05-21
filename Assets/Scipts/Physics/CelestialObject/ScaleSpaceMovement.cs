@@ -1,6 +1,7 @@
 using EditorAttributes;
 using UnityEngine;
 using Orbits;
+using UnityEditor.ShaderGraph;
 
 /*
     #==============================================================#
@@ -31,6 +32,12 @@ public class ScaleSpaceMovement : MonoBehaviour
 #if UNITY_EDITOR
     public void OnValidate() {
         Start();
+    }
+    private void OnDrawGizmos() {
+        if (orbitDriver.simTransform.TryGetSimComponent(out CelestialObject celestialObject)) {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, (float)(celestialObject.SOIdistance / ScaleSpaceSingleton.Get.scaleDownFactor));
+        }
     }
 #endif
 

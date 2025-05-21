@@ -43,9 +43,9 @@ public class OrbitDriver : MonoBehaviour
     [field: SerializeField, ShowField(nameof(keplerInitialise))] public double initArgumentOfPeriapsis {get; private set;}
     [field: SerializeField, ShowField(nameof(keplerInitialise))] public double initTrueAnomaly {get; private set;}
 
-    [Space(10)]
-    [Title("Orbit")]
-    [SerializeField, ReadOnly] private Orbit orbit = new();
+    [field: Space(10)]
+    [field: Title("Orbit")]
+    [field: SerializeField, ReadOnly] public Orbit orbit {get; private set;} = new();
     [Button] public void LogOrbit() => Debug.Log(orbit);
 
     public SpaceSimTransform simTransform {get; private set;}

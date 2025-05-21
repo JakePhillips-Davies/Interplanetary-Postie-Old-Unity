@@ -83,14 +83,16 @@ public struct OrbitConic {
 
         double time;
         Vector3d pos;
+        Vector3d vel;
         double trueAnomaly = startTrueAnomaly;
         double trueAnomalyStep = (endTrueAnomaly - startTrueAnomaly) / (orbitDetail - 1);
         for (int i = 0; i < orbitDetail; i++) {
 
             pos = orbit.GetCartesianAtTrueAnomaly(trueAnomaly).localPos;
+            vel = orbit.GetCartesianAtTrueAnomaly(trueAnomaly).localVel;
             time = orbit.GetTimeAtTrueAnomaly(trueAnomaly);
 
-            points[i] = new OrbitPoint(pos, time);
+            points[i] = new OrbitPoint(pos, vel, time);
 
             trueAnomaly += trueAnomalyStep;
 

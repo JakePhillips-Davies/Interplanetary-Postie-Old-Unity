@@ -15,11 +15,13 @@ namespace Orbits
 [Serializable]
 public struct OrbitPoint {
     public Vector3d position;
+    public Vector3d velocity;
     public double time;
 
-    public OrbitPoint(Vector3d position, double time) {
-        this.position = position;
-        this.time = time;
+    public OrbitPoint(Vector3d _position, Vector3d _velocity, double _time) {
+        position = _position;
+        velocity = _velocity;
+        time = _time;
     }
 }
 
