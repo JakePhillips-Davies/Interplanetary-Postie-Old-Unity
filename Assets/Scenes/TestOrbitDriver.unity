@@ -675,6 +675,7 @@ Transform:
   m_Children:
   - {fileID: 2103560211}
   - {fileID: 1160807552}
+  - {fileID: 1029709344}
   - {fileID: 1581938305}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -709,6 +710,7 @@ Transform:
   m_Children:
   - {fileID: 208751354}
   - {fileID: 123891676}
+  - {fileID: 1754124322}
   - {fileID: 922890619}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -741,7 +743,7 @@ Transform:
   m_GameObject: {fileID: 922890618}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.002276, y: 0.10876081, z: 0.25313193}
+  m_LocalPosition: {x: 5.002276, y: 0.10876081, z: 0.2531316}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -834,6 +836,484 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 922890618}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1029709340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1029709344}
+  - component: {fileID: 1029709341}
+  - component: {fileID: 1029709343}
+  - component: {fileID: 1029709342}
+  m_Layer: 0
+  m_Name: Noom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1029709341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029709340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7dace7084200a94cac27652ea703c87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <position>k__BackingField:
+    x: 8475463566.991098
+    y: 0
+    z: 12294.355251622981
+  <localPosition>k__BackingField:
+    x: 8475463566.991098
+    y: 0
+    z: 12294.355251622981
+  <parent>k__BackingField: {fileID: 2103560213}
+  <children>k__BackingField: []
+--- !u!114 &1029709342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029709340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 902b8a75d3f47c64da6bb72f38f1e54e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cartesianInitialise: 1
+  keplerInitialise: 0
+  <parent>k__BackingField: {fileID: 2103560212}
+  <initPos>k__BackingField:
+    x: 8475463567
+    y: 45
+    z: 555
+  <initVel>k__BackingField:
+    x: 0
+    y: 0
+    z: 200
+  <initPeriapsis>k__BackingField: 375690
+  <initEccentricity>k__BackingField: 0.3
+  <initInclination>k__BackingField: 0
+  <initRightAscensionOfAscendingNode>k__BackingField: 6
+  <initArgumentOfPeriapsis>k__BackingField: 6
+  <initTrueAnomaly>k__BackingField: 6
+  orbit:
+    periapsis: 6271109890.23037
+    apoapsis: 8475463567.000122
+    semiMajorAxis: 7373286728.615246
+    inclination: 0
+    eccentricity: 0.14948243286232166
+    eccentricityVector:
+      x: -0.1494824328623073
+      y: -0.0000000007936686206752034
+      z: -0.00000006548314385551046
+    argumentOfPeriapsis: 4.712390111270919
+    rightAscensionOfAscendingNode: 4.712389673205103
+    startingTrueAnomaly: 3.141592280465193
+    parent: {fileID: 2103560212}
+    epoch: 0
+    meanAnomalyAtEpoch: 3.1415921549743255
+    orbitEndTime: 0
+    period: 199251462.74034894
+    meanMotion: 0.00000003153395168891595
+    angularMomentum: 1695092713400
+    angularMomentumVector:
+      x: -9000
+      y: 1695092713400
+      z: -0
+    SOIdistance: 0
+  orbitConic:
+    points:
+    - position:
+        x: 8475463566.991098
+        y: 0
+        z: 12294.355251622981
+      time: 0
+    - position:
+        x: 8425986947.373767
+        y: 0
+        z: 843159602.0115253
+      time: -195027478.68134913
+    - position:
+        x: 8278564879.065669
+        y: 0
+        z: 1673560684.2414625
+      time: -190818199.26789424
+    - position:
+        x: 8036170214.748704
+        y: 0
+        z: 2478843281.698485
+      time: -186637912.730494
+    - position:
+        x: 7703616303.985356
+        y: 0
+        z: 3247360144.309561
+      time: -182500204.50409895
+    - position:
+        x: 7287356817.740417
+        y: 0
+        z: 3968497233.948478
+      time: -178417621.6379534
+    - position:
+        x: 6795227779.086759
+        y: 0
+        z: 4632922950.055554
+      time: -174401412.47376713
+    - position:
+        x: 6236150736.729339
+        y: 0
+        z: 5232768016.503504
+      time: -170461329.50575933
+    - position:
+        x: 5619817329.526272
+        y: 0
+        z: 5761731842.46097
+      time: -166605500.00976202
+    - position:
+        x: 4956374727.631818
+        y: 0
+        z: 6215117083.709897
+      time: -162840363.8845728
+    - position:
+        x: 4256128955.878294
+        y: 0
+        z: 6589799129.546197
+      time: -159170673.70738307
+    - position:
+        x: 3529279447.633149
+        y: 0
+        z: 6884140896.132186
+      time: -155599548.63915256
+    - position:
+        x: 2785693946.581231
+        y: 0
+        z: 7097865447.678146
+      time: -152128571.69407657
+    - position:
+        x: 2034728630.1537886
+        y: 0
+        z: 7231899651.431705
+      time: -148757918.98976287
+    - position:
+        x: 1285094513.1089523
+        y: 0
+        z: 7288201531.927342
+      time: -145486509.75709116
+    - position:
+        x: 544768089.240151
+        y: 0
+        z: 7269582551.390935
+      time: -142312166.86034608
+    - position:
+        x: -179058086.3210114
+        y: -0
+        z: 7179534058.67839
+      time: -139231779.0788074
+    - position:
+        x: -879990582.897916
+        y: -0
+        z: 7022064940.543404
+      time: -136241458.16585752
+    - position:
+        x: -1552422417.4268517
+        y: -0
+        z: 6801555334.177366
+      time: -133336685.5111008
+    - position:
+        x: -2191498941.108437
+        y: -0
+        z: 6522629298.956609
+      time: -130512444.92376375
+    - position:
+        x: -2793068334.121521
+        y: -0
+        z: 6190047702.722788
+      time: -127763339.52997331
+    - position:
+        x: -3353622091.217423
+        y: -0
+        z: 5808621294.679944
+      time: -125083691.98253857
+    - position:
+        x: -3870230074.554432
+        y: -0
+        z: 5383143006.862427
+      time: -122467628.11002935
+    - position:
+        x: -4340473864.57415
+        y: -0
+        z: 4918337912.263972
+      time: -119909144.8004226
+    - position:
+        x: -4762381329.978618
+        y: -0
+        z: 4418828917.056044
+      time: -117402163.35792777
+    - position:
+        x: -5134364611.329056
+        y: -0
+        z: 3889116118.555548
+      time: -114940569.83171633
+    - position:
+        x: -5455163094.455154
+        y: -0
+        z: 3333567763.6091413
+      time: -112518243.93496601
+    - position:
+        x: -5723792448.002066
+        y: -0
+        z: 2756420844.2464232
+      time: -110129078.19150046
+    - position:
+        x: -5939500410.81352
+        y: -0
+        z: 2161789527.686216
+      time: -107766988.89959787
+    - position:
+        x: -6101729729.061933
+        y: -0
+        z: 1553679803.6854832
+      time: -105425920.41634427
+    - position:
+        x: -6210088445.843319
+        y: -0
+        z: 936008919.4684904
+      time: -103099844.1632585
+    - position:
+        x: -6264327621.548026
+        y: -0
+        z: 312628343.55496085
+      time: -100782753.65143931
+    - position:
+        x: -6264326495.756263
+        y: -0
+        z: -312650857.3409784
+      time: -98468656.73422173
+    - position:
+        x: -6210085075.361437
+        y: -0
+        z: -936031237.4533144
+      time: -96151566.22561044
+    - position:
+        x: -6101724134.617856
+        y: -0
+        z: -1553701730.522939
+      time: -93825489.97894572
+    - position:
+        x: -5939492627.1110935
+        y: -0
+        z: -2161810868.966751
+      time: -91484421.50533625
+    - position:
+        x: -5723782523.951021
+        y: -0
+        z: -2756441407.031814
+      time: -89122332.2263144
+    - position:
+        x: -5455151093.480874
+        y: -0
+        z: -3333587357.0468383
+      time: -86733166.49898133
+    - position:
+        x: -5134350611.749244
+        y: -0
+        z: -3889134554.5991807
+      time: -84310840.62162966
+    - position:
+        x: -4762365425.429497
+        y: -0
+        z: -4418846011.318217
+      time: -81849247.11809352
+    - position:
+        x: -4340456164.463637
+        y: -0
+        z: -4918353485.026568
+      time: -79342265.70155314
+    - position:
+        x: -3870210704.5140624
+        y: -0
+        z: -5383156884.268095
+      time: -76783782.4211698
+    - position:
+        x: -3353601193.518296
+        y: -0
+        z: -5808633310.125912
+      time: -74167718.5811244
+    - position:
+        x: -2793046068.0126247
+        y: -0
+        z: -6190057698.474151
+      time: -71488071.06934026
+    - position:
+        x: -2191475483.028528
+        y: -0
+        z: -6522637127.990373
+      time: -68738965.71430136
+    - position:
+        x: -1552397961.0339081
+        y: -0
+        z: -6801560862.260594
+      time: -65914725.16869037
+    - position:
+        x: -879965338.8535156
+        y: -0
+        z: -7022068048.538362
+      time: -63009952.55845865
+    - position:
+        x: -179032281.761657
+        y: -0
+        z: -7179534645.054117
+      time: -60019631.69259892
+    - position:
+        x: 544794211.6156582
+        y: 0
+        z: -7269580534.904488
+      time: -56939243.96041474
+    - position:
+        x: 1285120696.4066935
+        y: 0
+        z: -7288196854.41881
+      time: -53764901.11491269
+    - position:
+        x: 2034754605.1723018
+        y: 0
+        z: -7231892280.655928
+      time: -50493491.93491485
+    - position:
+        x: 2785719434.27459
+        y: 0
+        z: -7097855380.073568
+      time: -47122839.28416227
+    - position:
+        x: 3529304162.187123
+        y: 0
+        z: -6884128159.405128
+      time: -43651862.39290373
+    - position:
+        x: 4256152608.4119844
+        y: 0
+        z: -6589783784.929243
+      time: -40080737.37803212
+    - position:
+        x: 4956397030.504497
+        y: 0
+        z: -6215099227.738597
+      time: -36411047.252952114
+    - position:
+        x: 5619838001.189678
+        y: 0
+        z: -5761711608.106466
+      time: -32645911.177771047
+    - position:
+        x: 6236169507.021312
+        y: 0
+        z: -5232745573.503181
+      time: -28790081.728786454
+    - position:
+        x: 6795244394.816058
+        y: 0
+        z: -4632898504.301562
+      time: -24849998.80388677
+    - position:
+        x: 7287371048.3693075
+        y: 0
+        z: -3968471025.8265424
+      time: -20833789.678010937
+    - position:
+        x: 7703627947.180875
+        y: 0
+        z: -3247332445.927436
+      time: -16751206.84453582
+    - position:
+        x: 8036179101.550513
+        y: 0
+        z: -2478814393.0034113
+      time: -12613498.644416949
+    - position:
+        x: 8278570878.413257
+        y: 0
+        z: -1673530928.0936873
+      time: -8433212.126267174
+    - position:
+        x: 8425989969.750683
+        y: 0
+        z: -843129318.3519258
+      time: -4223932.724560662
+    - position:
+        x: 8475463566.980576
+        y: 0
+        z: 18166.32950529776
+      time: -199251411.40985945
+    orbitDetail: 64
+    orbit:
+      periapsis: 6271109890.23037
+      apoapsis: 8475463567.000122
+      semiMajorAxis: 7373286728.615246
+      inclination: 0
+      eccentricity: 0.14948243286232166
+      eccentricityVector:
+        x: -0.1494824328623073
+        y: -0.0000000007936686206752034
+        z: -0.00000006548314385551046
+      argumentOfPeriapsis: 4.712390111270919
+      rightAscensionOfAscendingNode: 4.712389673205103
+      startingTrueAnomaly: 3.141592280465193
+      parent: {fileID: 2103560212}
+      epoch: 0
+      meanAnomalyAtEpoch: 3.1415921549743255
+      orbitEndTime: 0
+      period: 199251462.74034894
+      meanMotion: 0.00000003153395168891595
+      angularMomentum: 1695092713400
+      angularMomentumVector:
+        x: -9000
+        y: 1695092713400
+        z: -0
+      SOIdistance: 0
+    startTrueAnomaly: 3.141592280465193
+    endTrueAnomaly: 9.424778280465192
+--- !u!114 &1029709343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029709340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e668d03b03da7484a97f3e885aee6ef4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <mass>k__BackingField: 7.34767309e+22
+  <gravitationalParameter>k__BackingField: 4904058552609.663
+  <position>k__BackingField:
+    x: 0
+    y: 0
+    z: 0
+--- !u!4 &1029709344
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029709340}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.4754637e+9, y: 0, z: 12294.355}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 493653694}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1160807551
 GameObject:
   m_ObjectHideFlags: 0
@@ -939,6 +1419,7 @@ MonoBehaviour:
       x: -6390
       y: 1587884434430
       z: -65705562804
+    SOIdistance: 0
   orbitConic:
     points:
     - position:
@@ -1286,6 +1767,7 @@ MonoBehaviour:
         x: -6390
         y: 1587884434430
         z: -65705562804
+      SOIdistance: 0
     startTrueAnomaly: 0.0000007477354580339593
     endTrueAnomaly: 6.283186747735458
 --- !u!114 &1160807555
@@ -1343,13 +1825,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <position>k__BackingField:
-    x: 5002275992.609488
-    y: 108760812.37110725
-    z: 253131939.87971044
+    x: 5002275813.417446
+    y: 108760810.9238968
+    z: 253131605.52133837
   <localPosition>k__BackingField:
-    x: -473187574.3844943
-    y: 108760610.61691025
-    z: 253123805.66678098
+    x: -473187753.5765362
+    y: 108760609.1696998
+    z: 253123471.30840892
   <parent>k__BackingField: {fileID: 1160807555}
   <children>k__BackingField: []
 --- !u!114 &1581938303
@@ -1376,384 +1858,386 @@ MonoBehaviour:
     y: 0
     z: 100
   <initPeriapsis>k__BackingField: 547546356
-  <initEccentricity>k__BackingField: 3.64
+  <initEccentricity>k__BackingField: 3.69
   <initInclination>k__BackingField: 0.2
   <initRightAscensionOfAscendingNode>k__BackingField: 1.06
   <initArgumentOfPeriapsis>k__BackingField: 1.59
   <initTrueAnomaly>k__BackingField: 0
   orbit:
-    periapsis: 547546356.0000001
+    periapsis: 547546356
     apoapsis: Infinity
-    semiMajorAxis: -207403922.72727266
+    semiMajorAxis: -203548831.22676578
     inclination: 0.2
-    eccentricity: 3.640000000000001
+    eccentricity: 3.6900000000000004
     eccentricityVector:
-      x: -3.1456747942626424
-      y: 0.7230230250049429
-      z: 1.682726298021574
+      x: -3.188884612865151
+      y: 0.7329546599638018
+      z: 1.7058406702471445
     argumentOfPeriapsis: 1.59
     rightAscensionOfAscendingNode: 1.06
-    startingTrueAnomaly: 0
+    startingTrueAnomaly: 6.283186
     parent: {fileID: 1160807553}
     epoch: 0
-    meanAnomalyAtEpoch: 0
+    meanAnomalyAtEpoch: 0.0000014114408214902107
     orbitEndTime: 0
-    period: 8474762.613697838
-    meanMotion: 0.0000007413996457959103
-    angularMomentum: 111621347286.38219
+    period: 8239578.815636732
+    meanMotion: 0.0000007625615508496659
+    angularMomentum: 112221143905.82436
     angularMomentumVector:
-      x: 19345126940.223396
-      y: 109396351848.99335
-      z: -10841099382.674776
+      x: 19449077860.217724
+      y: 109984192469.21078
+      z: -10899353963.172554
+    SOIdistance: 0
   orbitConic:
     points:
     - position:
-        x: 2714458159766.1113
-        y: -199678576334.33145
-        z: 2828811802079.2095
-      time: -25518039303.452194
+        x: 2698581687155.564
+        y: -196381481021.81506
+        z: 2833752059426.1055
+      time: -25231287468.322414
     - position:
-        x: 7940713926.87711
-        y: -483336393.85188806
-        z: 9292312260.247711
-      time: -76038109.876207
+        x: 7892574126.332265
+        y: -473562173.95379984
+        z: 9305040992.061033
+      time: -75246299.69946206
     - position:
-        x: 3679337763.5590672
-        y: -170540097.00123215
-        z: 4844600144.523475
-      time: -36840371.65908825
+        x: 3656093157.591132
+        y: -165926148.22752303
+        z: 4849680746.443309
+      time: -36474798.057007276
     - position:
-        x: 2252667559.935954
-        y: -66363521.17186283
-        z: 3350048874.8465347
-      time: -23912591.726075828
+        x: 2237739975.996722
+        y: -63467185.668247364
+        z: 3352638329.164778
+      time: -23684195.876430657
     - position:
-        x: 1536363934.3557901
-        y: -14459716.123361545
-        z: 2595614535.9939775
-      time: -17507337.603683602
+        x: 1525598818.259416
+        y: -12418518.491172194
+        z: 2597002498.268151
+      time: -17345351.978160933
     - position:
-        x: 1104484673.0610282
-        y: 16518561.040103188
-        z: 2137556875.1369052
-      time: -13690921.482610743
+        x: 1096218455.0869873
+        y: 18049784.82543454
+        z: 2138257842.7867749
+      time: -13567632.120937344
     - position:
-        x: 814896614.1906011
-        y: 37030639.55193396
-        z: 1827793899.7551284
-      time: -11158665.991944628
+        x: 808296923.6841065
+        y: 38224454.34842761
+        z: 1828063903.082476
+      time: -11060504.933834666
     - position:
-        x: 606646166.3205897
-        y: 51561184.36906173
-        z: 1602812772.8475087
-      time: -9354355.18666791
+        x: 601237071.8059168
+        y: 52516154.57611379
+        z: 1602797150.5165937
+      time: -9273729.737599602
     - position:
-        x: 449242092.9539066
-        y: 62352905.30554452
-        z: 1430835115.0702307
-      time: -8001355.242363848
+        x: 444725948.5762191
+        y: 63130592.73397293
+        z: 1430623953.9474478
+      time: -7933617.256262084
     - position:
-        x: 325737922.9057332
-        y: 70651659.11629039
-        z: 1294193027.1093295
-      time: -6946789.80596214
+        x: 321916152.8881634
+        y: 71293073.03107637
+        z: 1293845803.6691058
+      time: -6888903.471639411
     - position:
-        x: 225961700.22925544
-        y: 77204721.22522725
-        z: 1182276093.0137079
-      time: -6099406.182435681
+        x: 222695177.24139094
+        y: 77738545.50084178
+        z: 1181833990.8427422
+      time: -6049289.2748045465
     - position:
-        x: 143437524.8115048
-        y: 82487346.77190046
-        z: 1088324303.6102233
-      time: -5401423.824469495
+        x: 140624951.73439887
+        y: 82934428.19265282
+        z: 1087816928.2416065
+      time: -5357592.381974997
     - position:
-        x: 73845904.20657307
-        y: 86816077.26201677
-        z: 1007824035.1395991
-      time: -4814504.652342121
+        x: 71411199.91571103
+        y: 87192043.99440049
+        z: 1007273327.6496549
+      time: -4775868.024390922
     - position:
-        x: 14194526.452317642
-        y: 90409761.10556956
-        z: 937644107.276579
-      time: -4312223.509158535
+        x: 12079060.861966563
+        y: 90726634.21028599
+        z: 937066749.8973103
+      time: -4277959.651899744
     - position:
-        x: -37655677.25835221
-        y: 93424425.08158724
-        z: 875541961.7406412
-      time: -3875779.7465674626
+        x: -39498076.757294126
+        y: 93691654.59409982
+        z: 874950922.1993365
+      time: -3845255.965865426
     - position:
-        x: -83274947.92034906
-        y: 95974196.87881437
-        z: 819867271.5724821
-      time: -3491432.59389841
+        x: -84881327.05084264
+        y: 96199352.64900272
+        z: 819272831.0909688
+      time: -3464153.313277875
     - position:
-        x: -123842492.567591
-        y: 98144379.92379425
-        z: 769376618.035674
-      time: -3148903.4143788335
+        x: -125243061.39051779
+        y: 98333626.71768689
+        z: 768787077.0129915
+      time: -3124474.6832787925
     - position:
-        x: -160261552.61335105
-        y: 99999911.01414873
-        z: 723113504.8680925
-      time: -2840345.083720849
+        x: -161481304.28286403
+        y: 100158344.06805965
+        z: 722535680.3734533
+      time: -2818449.822080938
     - position:
-        x: -193236137.0248003
-        y: 101590995.66796991
-        z: 680328299.3961359
-      time: -2559656.9243028243
+        x: -194296018.3403799
+        y: 101722883.26440074
+        z: 679767884.2137511
+      time: -2540037.262475037
     - position:
-        x: -223323543.06203252
-        y: 102956960.3940214
-        z: 640423386.0624181
-      time: -2302017.2208719016
+        x: -224241318.4996652
+        y: 103065922.87901275
+        z: 639885213.3373814
+      time: -2284461.6531367996
     - position:
-        x: -250971139.4459258
-        y: 104128945.38220555
-        z: 602914701.2735679
-      time: -2063556.7106990947
+        x: -251762040.80007005
+        y: 104218089.75439434
+        z: 602402943.3981022
+      time: -2047890.5910351977
     - position:
-        x: -276542659.1643702
-        y: 105131823.52514814
-        z: 567404180.5014821
-      time: -1841125.7302797185
+        x: -277219882.26030654
+        y: 105203846.35815047
+        z: 566922501.3476318
+      time: -1827204.137520939
     - position:
-        x: -300337341.75935936
-        y: 105985591.2552179
-        z: 533559635.0956235
-      time: -1632124.969291553
+        x: -300912432.18130773
+        y: 106042858.66364056
+        z: 533111308.6407272
+      time: -1619827.2840615574
     - position:
-        x: -322604103.9169172
-        y: 106706391.17334852
-        z: 501099785.16642255
-      time: -1434380.2691004626
+        x: -323087260.9768039
+        y: 106751001.89240481
+        z: 500687789.613223
+      time: -1423606.0092919006
     - position:
-        x: -343552191.5932107
-        y: 107307272.97096136
-        z: 469782930.0470897
-      time: -1246048.4402975852
+        x: -343952511.29250544
+        y: 107341108.86167508
+        z: 469410023.91910523
+      time: -1236714.0373706007
     - position:
-        x: -363359302.6301094
-        y: 107798764.88520177
-        z: 439398220.5891956
-      time: -1065545.2450248513
+        x: -363684974.6156269
+        y: 107823531.98441929
+        z: 439067005.5090931
+      time: -1057581.5351150804
     - position:
-        x: -382177865.3849377
-        y: 108189305.48235814
-        z: 409758812.49923867
-      time: -891489.4069764733
+        x: -382436334.9295561
+        y: 108206567.89422391
+        z: 409471786.14160115
+      time: -884839.6740939409
     - position:
-        x: -400139956.7973203
-        y: 108485570.54756118
-        z: 380696389.0263539
-      time: -722658.3140737225
+        x: -400338060.057404
+        y: 108496778.89811641
+        z: 380455990.8932304
+      time: -717276.767178432
     - position:
-        x: -417361206.4110181
-        y: 108692719.6033686
-        z: 352056682.12096846
-      time: -557952.292303694
+        x: -417505285.2449028
+        y: 108699235.37387553
+        z: 351865334.2018385
+      time: -553802.8899403677
     - position:
-        x: -433943938.7504171
-        y: 108814579.42543852
-        z: 323695716.9368133
-      time: -396365.1558662878
+        x: -434039939.97932917
+        y: 108817696.19166356
+        z: 323555860.9082303
+      time: -393420.715376768
     - position:
-        x: -449979740.94819576
-        y: 108853776.81269051
-        z: 295476569.8615763
-      time: -236959.30553396922
+        x: -450033303.9389003
+        y: 108854739.21288365
+        z: 295390702.2063259
+      time: -235200.85135060246
     - position:
-        x: -465551596.5186887
-        y: 108811829.11192793
-        z: 267266474.43281963
-      time: -78844.03492142455
+        x: -465568132.25696224
+        y: 108811850.22314702
+        z: 267237180.68184564
+      time: -78260.35393711735
     - position:
-        x: -480735693.7289913
-        y: 108689198.12918697
-        z: 238934138.4492222
-      time: 78844.03492143127
+        x: -480720458.06203043
+        y: 108689475.83509147
+        z: 238964127.65167674
+      time: 78256.65209607813
     - position:
-        x: -495602994.22959214
-        y: 108485310.75848615
-        z: 210347153.0295885
-      time: 236959.30553397603
+        x: -495561157.63608974
+        y: 108487043.63219525
+        z: 210439293.52556434
+      time: 235197.14950956329
     - position:
-        x: -510220631.899001
-        y: 108198547.68436852
-        z: 181369382.478345
-      time: 396365.15586629463
+        x: -510157347.96834314
+        y: 108202950.88174476
+        z: 181526740.08028802
+      time: 393417.0135357289
     - position:
-        x: -524653201.57335263
-        y: 107826199.67631857
-        z: 151858223.61615968
-      time: 557952.2923037007
+        x: -524573676.32462907
+        y: 107834521.33544801
+        z: 152084103.39967266
+      time: 553799.1880993283
     - position:
-        x: -538963991.4643031
-        y: 107364389.11915715
-        z: 121661614.7946156
-      time: 722658.3140737298
+        x: -538873555.7079122
+        y: 107377927.79088064
+        z: 121959607.86420321
+      time: 717273.0653373932
     - position:
-        x: -553216211.1135327
-        y: 106807952.33817199
-        z: 90614657.25942686
-      time: 891489.4069764806
+        x: -553120398.2608778
+        y: 106828076.03299342
+        z: 90988694.10321577
+      time: 884835.9722529018
     - position:
-        x: -567474268.627822
-        y: 106150275.77677807
-        z: 58535682.907084286
-      time: 1065545.245024859
+        x: -567378900.7083417
+        y: 106178443.31110927
+        z: 58990095.30852942
+      time: 1057577.8332740408
     - position:
-        x: -581805157.0724528
-        y: 105383075.90524215
-        z: 25221559.45298305
-      time: 1246048.4402975934
+        x: -581716442.2580392
+        y: 105420861.37439838
+        z: 25761153.420201194
+      time: 1236710.3355295614
     - position:
-        x: -596280021.1943799
-        y: 104496108.51884285
-        z: -9558038.708883189
-      time: 1434380.2691004707
+        x: -596204666.9162289
+        y: 104545229.93045512
+        z: -8927895.854986511
+      time: 1423602.307450861
     - position:
-        x: -610975993.7409508
-        y: 103476787.2978794
-        z: -46067756.34800516
-      time: 1632124.9692915613
+        x: -610921340.6001824
+        y: 103539140.69007194
+        z: -45341030.64436369
+      time: 1619823.5822205183
     - position:
-        x: -625978418.228005
-        y: 102309683.36460437
-        z: -84615573.67637782
-      time: 1841125.7302797274
+        x: -625952601.480892
+        y: 102387384.14247665
+        z: -83785435.554083
+      time: 1827200.435679899
     - position:
-        x: -641383616.4132434
-        y: 100975865.87660696
-        z: -125564398.69697358
-      time: 2063556.710699104
+        x: -641395764.0548589
+        y: 101071299.67988664
+        z: -124623063.14671536
+      time: 2047886.889194158
     - position:
-        x: -657302420.8797331
-        y: 99452026.54523918
-        z: -169347205.2225764
-      time: 2302017.220871912
+        x: -657362900.5639454
+        y: 99567912.78863953
+        z: -168285731.2259927
+      time: 2284457.95129576
     - position:
-        x: -673864787.2858363
-        y: 97709305.31136677
-        z: -216487113.06704137
-      time: 2559656.9243028355
+        x: -673985518.9849939
+        y: 97848777.74071908
+        z: -215295148.63127616
+      time: 2540033.560633997
     - position:
-        x: -691225945.5965717
-        y: 95711695.23087567
-        z: -267624460.58171868
-      time: 2840345.08372086
+        x: -691420803.7847803
+        y: 95878405.60895525
+        z: -266289914.1228828
+      time: 2818446.120239898
     - position:
-        x: -709574776.4241698
-        y: 93413843.45543687
-        z: -323553941.66887623
-      time: 3148903.414378846
+        x: -709860115.9059539
+        y: 93612097.15097097
+        z: -322062552.0998741
+      time: 3124470.9814377525
     - position:
-        x: -729145462.0178399
-        y: 90757967.37434155
-        z: -385276514.9736591
-      time: 3491432.593898424
+        x: -729540817.3902888
+        y: 90992903.70846578
+        z: -383611279.98537964
+      time: 3464149.611436834
     - position:
-        x: -750234058.8821133
-        y: 87669444.327172
-        z: -454073480.20436
-      time: 3875779.7465674784
+        x: -750763092.5641379
+        y: 87947280.94648841
+        z: -452213882.0107422
+      time: 3845252.264024387
     - position:
-        x: -773222650.343868
-        y: 84050361.47316433
-        z: -531614664.13776076
-      time: 4312223.5091585545
+        x: -773914464.4131998
+        y: 84378732.38263589
+        z: -529535599.2972255
+      time: 4277955.950058704
     - position:
-        x: -798615507.3693614
-        y: 79769836.7892872
-        z: -620120616.632046
-      time: 4814504.6523421435
+        x: -799506501.6330506
+        y: 80158270.95223866
+        z: -617790882.1342059
+      time: 4775864.322549882
     - position:
-        x: -827094903.9527723
-        y: 74649057.5491109
-        z: -722613184.070557
-      time: 5401423.8244695235
+        x: -828231478.7241579
+        y: 75109674.79727931
+        z: -719993277.8861133
+      time: 5357588.680133957
     - position:
-        x: -859610346.9710947
-        y: 68437340.11982083
-        z: -843316311.3086853
-      time: 6099406.182435712
+        x: -861052957.8970202
+        y: 68985894.81539358
+        z: -840355136.4439648
+      time: 6049285.572963507
     - position:
-        x: -897527205.6192214
-        y: 60772230.47551873
-        z: -988323881.0985161
-      time: 6946789.805962178
+        x: -899356672.386847
+        y: 61429734.78422683
+        z: -984953622.7367659
+      time: 6888899.769798369
     - position:
-        x: -942886698.8941367
-        y: 51109686.85917981
-        z: -1166768161.357425
-      time: 8001355.2423639
+        x: -945214458.4821477
+        y: 51905048.29045902
+        z: -1162895967.8846827
+      time: 7933613.554421047
     - position:
-        x: -998888552.3891156
-        y: 38594440.43604321
-        z: -1392989246.448647
-      time: 9354355.186667971
+        x: -1001874237.5082637
+        y: 39568982.76988367
+        z: -1388482976.6796267
+      time: 9273726.035758559
     - position:
-        x: -1070855971.0271968
-        y: 21800778.366996106
-        z: -1690872708.2323613
-      time: 11158665.991944712
+        x: -1074739636.5304313
+        y: 23016528.535128914
+        z: -1685534815.0024028
+      time: 11060501.231993616
     - position:
-        x: -1168357745.3348558
-        y: -1837545.0571397874
-        z: -2103389039.781972
-      time: 13690921.482610876
+        x: -1173524310.9993696
+        y: -281287.61958476785
+        z: -2096904363.7265427
+      time: 13567628.41909629
     - position:
-        x: -1310510879.387308
-        y: -37451867.1425774
-        z: -2716430863.15445
-      time: 17507337.603683803
+        x: -1317635078.2714136
+        y: -35381264.45260512
+        z: -2708249234.564917
+      time: 17345348.276319865
     - position:
-        x: -1541877166.6023407
-        y: -97009317.39042915
-        z: -3730274348.066226
-      time: 23912591.726076216
+        x: -1552309845.2729797
+        y: -94076679.78449991
+        z: -3719297752.614668
+      time: 23684192.174589597
     - position:
-        x: -1995974202.8409445
-        y: -216375491.37218302
-        z: -5745087422.457759
-      time: 36840371.65908902
+        x: -2013092897.3341048
+        y: -211712068.03742138
+        z: -5728576349.584894
+      time: 36474794.35516621
     - position:
-        x: -3338655150.05166
-        y: -574431708.6041734
-        z: -11754106894.242022
-      time: 76038109.87621021
+        x: -3375946438.6428127
+        y: -564569873.1129934
+        z: -11721135688.915659
+      time: 75246295.99762055
     - position:
-        x: -851659703199.8318
-        y: -228479533815.90182
-        z: -3825284786722.4614
-      time: 25518039303.77648
+        x: -864576732563.7692
+        y: -225158537215.27594
+        z: -3814822440066.302
+      time: 25231287464.60591
     orbitDetail: 64
     orbit:
-      periapsis: 547546356.0000001
+      periapsis: 547546356
       apoapsis: Infinity
-      semiMajorAxis: -207403922.72727266
+      semiMajorAxis: -203548831.22676578
       inclination: 0.2
-      eccentricity: 3.640000000000001
+      eccentricity: 3.6900000000000004
       eccentricityVector:
-        x: -3.1456747942626424
-        y: 0.7230230250049429
-        z: 1.682726298021574
+        x: -3.188884612865151
+        y: 0.7329546599638018
+        z: 1.7058406702471445
       argumentOfPeriapsis: 1.59
       rightAscensionOfAscendingNode: 1.06
-      startingTrueAnomaly: 0
+      startingTrueAnomaly: 6.283186
       parent: {fileID: 1160807553}
       epoch: 0
-      meanAnomalyAtEpoch: 0
+      meanAnomalyAtEpoch: 0.0000014114408214902107
       orbitEndTime: 0
-      period: 8474762.613697838
-      meanMotion: 0.0000007413996457959103
-      angularMomentum: 111621347286.38219
+      period: 8239578.815636732
+      meanMotion: 0.0000007625615508496659
+      angularMomentum: 112221143905.82436
       angularMomentumVector:
-        x: 19345126940.223396
-        y: 109396351848.99335
-        z: -10841099382.674776
-    startTrueAnomaly: -1.8489153885389196
-    endTrueAnomaly: 1.8489153885389196
+        x: 19449077860.217724
+        y: 109984192469.21078
+        z: -10899353963.172554
+      SOIdistance: 0
+    startTrueAnomaly: -1.8450463742555245
+    endTrueAnomaly: 1.8450463742555245
 --- !u!114 &1581938304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1781,12 +2265,134 @@ Transform:
   m_GameObject: {fileID: 1581938301}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.002276e+9, y: 108760820, z: 253131940}
+  m_LocalPosition: {x: 5.002276e+9, y: 108760810, z: 253131600}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 493653694}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1754124321
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1754124322}
+  - component: {fileID: 1754124326}
+  - component: {fileID: 1754124325}
+  - component: {fileID: 1754124324}
+  - component: {fileID: 1754124323}
+  m_Layer: 0
+  m_Name: Noom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1754124322
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754124321}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 8.475464, y: 0, z: 0.000012294356}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 738963655}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1754124323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754124321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f35e9a5684498548ae6b3e54199108d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <orbitDriver>k__BackingField: {fileID: 1029709342}
+--- !u!135 &1754124324
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754124321}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1754124325
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754124321}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1754124326
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754124321}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1767664802
 GameObject:
   m_ObjectHideFlags: 0
@@ -2029,6 +2635,7 @@ MonoBehaviour:
   <parent>k__BackingField: {fileID: 0}
   <children>k__BackingField:
   - {fileID: 1160807555}
+  - {fileID: 1029709341}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

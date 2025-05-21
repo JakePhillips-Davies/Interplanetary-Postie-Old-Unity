@@ -49,7 +49,7 @@ public class OrbitDriver : MonoBehaviour
     [Button] public void LogOrbit() => Debug.Log(orbit);
 
     public TransformDouble transformD {get; private set;}
-
+    
     public OrbitConic orbitConic;
 
 
@@ -85,6 +85,7 @@ public class OrbitDriver : MonoBehaviour
     private void Start() {
 
         transformD = GetComponent<TransformDouble>();
+        transformD.AddComponentD(this);
 
         if (keplerInitialise) {
             orbit = new Orbit(initPeriapsis, initEccentricity, initInclination, initRightAscensionOfAscendingNode, initArgumentOfPeriapsis, initTrueAnomaly, parent, UniversalTimeSingleton.Get.time);
@@ -98,6 +99,10 @@ public class OrbitDriver : MonoBehaviour
 
         orbitConic = new(orbit, 64); // Patch
 
+    }
+
+    private void OnDestroy() {
+        transformD.RemoveComponentD(this);
     }
 
     private void FixedUpdate() {

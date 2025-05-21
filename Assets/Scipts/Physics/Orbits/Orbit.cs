@@ -48,6 +48,8 @@ public class Orbit
     public double angularMomentum;
     public Vector3d angularMomentumVector;
 
+    public double SOIdistance;
+
     private double distance;
     private double velSqr;
     private double p;

@@ -1,5 +1,6 @@
 using System;
 using EditorAttributes;
+using Orbits;
 using UnityEngine;
 
 /*
@@ -19,6 +20,8 @@ public class CelestialObject : MonoBehaviour
     [field: SerializeField] public double mass {get; private set;}
     [field: SerializeField, ReadOnly] public double gravitationalParameter  {get; private set;}
     [field: SerializeField, ReadOnly] public Vector3d position  {get; private set;}
+
+    public TransformDouble transformD {get; private set;}
 
 
     #endregion
@@ -48,14 +51,22 @@ public class CelestialObject : MonoBehaviour
 #if UNITY_EDITOR
     
     private void OnValidate() {
-        gravitationalParameter = Mathd.G * mass;
+        Awake();
     }
 
 #endif
 
 
     private void Awake() {
+
+        transformD = GetComponent<TransformDouble>();
+        transformD.AddComponentD(this);
+
         gravitationalParameter = Mathd.G * mass;
+    }
+
+    private void OnDestroy() {
+        transformD.RemoveComponentD(this);
     }
 
 

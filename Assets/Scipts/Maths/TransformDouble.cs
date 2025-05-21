@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Object = System.Object;
 
 /*
     #==============================================================#
@@ -19,6 +22,8 @@ public class TransformDouble : MonoBehaviour
     private TransformDouble m_parent;
     [field: SerializeField] public TransformDouble parent {get; private set;}
     [field: SerializeField] public TransformDouble[] children {get; private set;}
+
+    public Dictionary<Type, Object> componentDict {get; private set;} = new();
 
 
     #endregion
@@ -92,7 +97,7 @@ public class TransformDouble : MonoBehaviour
         }
         children = newChildren;
 
-        _child.parent = null;
+        if (_child != null) _child.parent = null;
     }
 
     public void Parent(TransformDouble _parent) {
@@ -106,6 +111,32 @@ public class TransformDouble : MonoBehaviour
     #endregion
 //--#
 
+
+
+//--#
+    #region Components
+
+
+    public void AddComponentD<T>(T obj) {if (!componentDict.ContainsKey(typeof(T))) componentDict.Add(typeof(T), obj);}
+    public void RemoveComponentD<T>() {if (componentDict.ContainsKey(typeof(T))) componentDict.Remove(typeof(T));}
+    public void RemoveComponentD<T>(T obj) {if (componentDict.ContainsKey(typeof(T))) componentDict.Remove(typeof(T));}
+    public bool TryGetComponentD<T>(out T obj) {
+        if (componentDict.TryGetValue(typeof(T), out Object _obj)) {
+            obj = (T)(object)_obj;
+            return true;
+        }
+        else {
+            obj = default;
+            return false;
+        }
+    }
+
+
+    #endregion
+//--#
+
+
+
 //--#
     #region misc
 
@@ -116,6 +147,10 @@ public class TransformDouble : MonoBehaviour
             m_parent?.RemoveChild(this);
             parent?.AddChild(this);
             m_parent = parent;
+        }
+        if (children != null) {
+            foreach (TransformDouble child in children)
+                if (child == null || child.parent != this) RemoveChild(child);
         }
     }
 #endif
