@@ -11,17 +11,16 @@ using Object = System.Object;
 	
 	
 */
-public class TransformDouble : MonoBehaviour
+public class SpaceSimTransform : MonoBehaviour
 {    
 //--#
     #region Variables
 
-    
     [field: SerializeField] public Vector3d position {get; private set;}
     [field: SerializeField] public Vector3d localPosition {get; private set;}
-    private TransformDouble m_parent;
-    [field: SerializeField] public TransformDouble parent {get; private set;}
-    [field: SerializeField] public TransformDouble[] children {get; private set;}
+    private SpaceSimTransform m_parent;
+    [field: SerializeField] public SpaceSimTransform parent {get; private set;}
+    [field: SerializeField] public SpaceSimTransform[] children {get; private set;}
 
     public Dictionary<Type, Object> componentDict {get; private set;} = new();
 
@@ -43,7 +42,7 @@ public class TransformDouble : MonoBehaviour
         else 
             position = _position;
 
-        foreach (TransformDouble child in children) {
+        foreach (SpaceSimTransform child in children) {
             child.SetLocalPosition(child.localPosition);
         }
     }
@@ -54,7 +53,7 @@ public class TransformDouble : MonoBehaviour
     public void ToTransform(Vector3d offset) {
         transform.position = new Vector3((float)(position.x + offset.x), (float)(position.y + offset.y), (float)(position.z + offset.z));
     }
-    public void ToTransform(TransformDouble centre) {
+    public void ToTransform(SpaceSimTransform centre) {
         ToTransform(-centre.position);
     }
 
@@ -69,10 +68,10 @@ public class TransformDouble : MonoBehaviour
     #region Parenting
 
 
-    public void AddChild(TransformDouble _child) {
+    public void AddChild(SpaceSimTransform _child) {
         if (children.Contains(_child)) return;
 
-        TransformDouble[] newChildren = new TransformDouble[children.Length + 1];
+        SpaceSimTransform[] newChildren = new SpaceSimTransform[children.Length + 1];
         for (int i = 0; i < children.Length; i++) {
             newChildren[i] = children[i];
         }
@@ -82,13 +81,13 @@ public class TransformDouble : MonoBehaviour
         _child.parent = this;
     }
 
-    public void RemoveChild(TransformDouble _child) {
+    public void RemoveChild(SpaceSimTransform _child) {
         if (!children.Contains(_child)) {
             Debug.Log("Child: ("+ _child +") not found in parent");
             return;
         }
 
-        TransformDouble[] newChildren = new TransformDouble[children.Length - 1];
+        SpaceSimTransform[] newChildren = new SpaceSimTransform[children.Length - 1];
         for (int i = 0, j = 0; i < children.Length; i++, j++) {
             if (children[i] == _child)
                 j--;
@@ -100,7 +99,7 @@ public class TransformDouble : MonoBehaviour
         if (_child != null) _child.parent = null;
     }
 
-    public void Parent(TransformDouble _parent) {
+    public void Parent(SpaceSimTransform _parent) {
         if (parent != null)
             parent.RemoveChild(this);
 
@@ -117,10 +116,10 @@ public class TransformDouble : MonoBehaviour
     #region Components
 
 
-    public void AddComponentD<T>(T obj) {if (!componentDict.ContainsKey(typeof(T))) componentDict.Add(typeof(T), obj);}
-    public void RemoveComponentD<T>() {if (componentDict.ContainsKey(typeof(T))) componentDict.Remove(typeof(T));}
-    public void RemoveComponentD<T>(T obj) {if (componentDict.ContainsKey(typeof(T))) componentDict.Remove(typeof(T));}
-    public bool TryGetComponentD<T>(out T obj) {
+    public void AddSimComponent<T>(T obj) {if (!componentDict.ContainsKey(typeof(T))) componentDict.Add(typeof(T), obj);}
+    public void RemoveSimComponent<T>() {if (componentDict.ContainsKey(typeof(T))) componentDict.Remove(typeof(T));}
+    public void RemoveSimComponent<T>(T obj) {if (componentDict.ContainsKey(typeof(T))) componentDict.Remove(typeof(T));}
+    public bool TryGetSimComponent<T>(out T obj) {
         if (componentDict.TryGetValue(typeof(T), out Object _obj)) {
             obj = (T)(object)_obj;
             return true;
@@ -149,7 +148,7 @@ public class TransformDouble : MonoBehaviour
             m_parent = parent;
         }
         if (children != null) {
-            foreach (TransformDouble child in children)
+            foreach (SpaceSimTransform child in children)
                 if (child == null || child.parent != this) RemoveChild(child);
         }
     }

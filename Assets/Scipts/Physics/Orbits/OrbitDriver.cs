@@ -14,7 +14,7 @@ namespace Orbits
 	
 	
 */
-[RequireComponent(typeof(TransformDouble))]
+[RequireComponent(typeof(SpaceSimTransform))]
 public class OrbitDriver : MonoBehaviour
 {
 //--#
@@ -48,7 +48,7 @@ public class OrbitDriver : MonoBehaviour
     [SerializeField, ReadOnly] private Orbit orbit = new();
     [Button] public void LogOrbit() => Debug.Log(orbit);
 
-    public TransformDouble transformD {get; private set;}
+    public SpaceSimTransform simTransform {get; private set;}
     
     public OrbitConic orbitConic;
 
@@ -64,6 +64,7 @@ public class OrbitDriver : MonoBehaviour
 
 #if UNITY_EDITOR
     private void OnValidate() {
+        Awake();
         Start();
         if (ScaleSpaceSingleton.Get.scaledSpaceTransform.Find(gameObject.name).TryGetComponent<ScaleSpaceMovement>(out ScaleSpaceMovement scaleSpaceMovement)){
             scaleSpaceMovement.OnValidate();
@@ -75,17 +76,18 @@ public class OrbitDriver : MonoBehaviour
             Gizmos.color = Color.red;
             for (int i = 0; i < orbitConic.points.Length; i++) {
                 if (i != orbitConic.points.Length - 1)
-                    Gizmos.DrawLine((Vector3)((parent.GetComponent<TransformDouble>().position + orbitConic.points[i].position) / ScaleSpaceSingleton.Get.scaleDownFactor), 
-                                    (Vector3)((parent.GetComponent<TransformDouble>().position + orbitConic.points[i + 1].position) / ScaleSpaceSingleton.Get.scaleDownFactor));
+                    Gizmos.DrawLine((Vector3)((parent.GetComponent<SpaceSimTransform>().position + orbitConic.points[i].position) / ScaleSpaceSingleton.Get.scaleDownFactor), 
+                                    (Vector3)((parent.GetComponent<SpaceSimTransform>().position + orbitConic.points[i + 1].position) / ScaleSpaceSingleton.Get.scaleDownFactor));
             }
         }
     }
 #endif
 
+    private void Awake() {
+        simTransform = GetComponent<SpaceSimTransform>();
+        simTransform.AddSimComponent(this);
+    }
     private void Start() {
-
-        transformD = GetComponent<TransformDouble>();
-        transformD.AddComponentD(this);
 
         if (keplerInitialise) {
             orbit = new Orbit(initPeriapsis, initEccentricity, initInclination, initRightAscensionOfAscendingNode, initArgumentOfPeriapsis, initTrueAnomaly, parent, UniversalTimeSingleton.Get.time);
@@ -94,20 +96,20 @@ public class OrbitDriver : MonoBehaviour
             orbit = new Orbit(initPos, initVel, parent, UniversalTimeSingleton.Get.time);
         }
 
-        transformD.SetLocalPosition(orbit.GetCartesianAtTime(UniversalTimeSingleton.Get.time).localPos);
-        transformD.ToTransform();
+        simTransform.SetLocalPosition(orbit.GetCartesianAtTime(UniversalTimeSingleton.Get.time).localPos);
+        simTransform.ToTransform();
 
         orbitConic = new(orbit, 64); // Patch
 
     }
 
     private void OnDestroy() {
-        transformD.RemoveComponentD(this);
+        simTransform.RemoveSimComponent(this);
     }
 
     private void FixedUpdate() {
-        transformD.SetLocalPosition(orbit.GetCartesianAtTime(UniversalTimeSingleton.Get.time).localPos);
-        transformD.ToTransform();
+        simTransform.SetLocalPosition(orbit.GetCartesianAtTime(UniversalTimeSingleton.Get.time).localPos);
+        simTransform.ToTransform();
     }
 
 

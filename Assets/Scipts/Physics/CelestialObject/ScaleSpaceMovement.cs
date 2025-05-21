@@ -39,10 +39,10 @@ public class ScaleSpaceMovement : MonoBehaviour
             orbitDriver = ScaleSpaceSingleton.Get.localSpaceTransform.Find(gameObject.name).GetComponent<OrbitDriver>();
         
         if (orbitDriver != null)
-            transform.position = (Vector3)(orbitDriver.transformD.position / ScaleSpaceSingleton.Get.scaleDownFactor);
+            transform.position = (Vector3)(orbitDriver.simTransform.position / ScaleSpaceSingleton.Get.scaleDownFactor);
     }
     private void FixedUpdate() {
-        transform.position = (Vector3)(orbitDriver.transformD.position / ScaleSpaceSingleton.Get.scaleDownFactor);
+        transform.position = (Vector3)(orbitDriver.simTransform.position / ScaleSpaceSingleton.Get.scaleDownFactor);
     }
 
 

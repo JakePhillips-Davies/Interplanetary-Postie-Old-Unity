@@ -21,7 +21,7 @@ public class CelestialObject : MonoBehaviour
     [field: SerializeField, ReadOnly] public double gravitationalParameter  {get; private set;}
     [field: SerializeField, ReadOnly] public Vector3d position  {get; private set;}
 
-    public TransformDouble transformD {get; private set;}
+    public SpaceSimTransform simTransform {get; private set;}
 
 
     #endregion
@@ -59,14 +59,14 @@ public class CelestialObject : MonoBehaviour
 
     private void Awake() {
 
-        transformD = GetComponent<TransformDouble>();
-        transformD.AddComponentD(this);
+        simTransform = GetComponent<SpaceSimTransform>();
+        simTransform.AddSimComponent(this);
 
         gravitationalParameter = Mathd.G * mass;
     }
 
     private void OnDestroy() {
-        transformD.RemoveComponentD(this);
+        simTransform.RemoveSimComponent(this);
     }
 
 
