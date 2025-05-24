@@ -57,7 +57,7 @@ public struct ConicMath {
                 if (Math.Abs(delta) < tolerance) { break; }
 
                 if (iter + 1 == maxIter)
-                { Debug.Log("Mean anomaly to true anomaly conversion failed: the solver did not converge." + meanAnomaly +" "+ eccentricity +" "+ trueAnomalyHint); }
+                { Debug.Log("Mean anomaly to true anomaly conversion failed: the solver did not converge." + meanAnomaly +" "+ eccentricity +" "+ trueAnomalyHint +" "+ eccentricAnomaly); }
             }
 
             return 2.0 * Math.Atan(Math.Tanh(0.5 * eccentricAnomaly) * Math.Sqrt((eccentricity + 1.0) / (eccentricity - 1.0)));
@@ -79,8 +79,10 @@ public struct ConicMath {
 
         } else {
 
-            double eccentricAnomaly = 2.0 * Math.Atanh(Math.Tan(0.5 * trueAnomaly) * Math.Sqrt((eccentricity - 1.0) / (eccentricity + 1.0)));
+            double eccentricAnomaly = 2.0 * Math.Atanh(Mathd.Clamp(Math.Tan(0.5 * trueAnomaly) * Math.Sqrt((eccentricity - 1.0) / (eccentricity + 1.0)), -1d, 1d));
             double meanAnomaly = eccentricity * Math.Sinh(eccentricAnomaly) - eccentricAnomaly;
+
+            if (double.IsNaN(meanAnomaly)) Debug.Log(eccentricAnomaly + " e|m " + meanAnomaly); 
             
             return meanAnomaly;
 

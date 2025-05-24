@@ -13,7 +13,7 @@ namespace Orbits
 
 */
 [Serializable]
-public struct OrbitConic {
+public struct OrbitConicLine {
 
 //--#
     #region Variables
@@ -36,19 +36,12 @@ public struct OrbitConic {
     #region Constructors
 
 
-    public OrbitConic(Orbit _orbit, int _orbitDetail) {
+    public OrbitConicLine(Orbit _orbit, int _orbitDetail) {
 
         orbit = _orbit;
         orbitDetail = _orbitDetail;
-        if (orbit.eccentricity < 1) {
-            startTrueAnomaly = _orbit.startingTrueAnomaly;
-            endTrueAnomaly = _orbit.startingTrueAnomaly + 2 * Mathd.PI;
-        }
-        else {
-            double taInf = Mathd.Acos(-1 / orbit.eccentricity); // True anomaly at infinity on a para/hyperbolic orbit
-            startTrueAnomaly = -taInf * 0.9999d;
-            endTrueAnomaly = taInf * 0.9999d;
-        }
+        startTrueAnomaly = _orbit.startingTrueAnomaly;
+        endTrueAnomaly = _orbit.endingTrueAnomaly;
 
         points = new OrbitPoint[orbitDetail];
 
@@ -56,7 +49,7 @@ public struct OrbitConic {
 
     }
 
-    public OrbitConic(Orbit _orbit, int _orbitDetail, double _startTrueAnomaly, double _endTrueAnomaly) {
+    public OrbitConicLine(Orbit _orbit, int _orbitDetail, double _startTrueAnomaly, double _endTrueAnomaly) {
 
         orbit = _orbit;
         orbitDetail = _orbitDetail;
@@ -92,7 +85,7 @@ public struct OrbitConic {
             vel = orbit.GetCartesianAtTrueAnomaly(trueAnomaly).localVel;
             time = orbit.GetTimeAtTrueAnomaly(trueAnomaly);
 
-            points[i] = new OrbitPoint(pos, vel, time);
+            points[i] = new OrbitPoint(pos, vel, trueAnomaly, time);
 
             trueAnomaly += trueAnomalyStep;
 

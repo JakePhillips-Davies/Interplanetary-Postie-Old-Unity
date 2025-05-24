@@ -53,7 +53,6 @@ public class CelestialObject : MonoBehaviour
     
     private void OnValidate() {
         Awake();
-        Start();
     }
 
 #endif
@@ -65,7 +64,7 @@ public class CelestialObject : MonoBehaviour
 
         gravitationalParameter = Mathd.G * mass;
     }
-    private void Start() {
+    private void FixedUpdate() {
         ReCalcSOI();
     }
 
@@ -85,7 +84,7 @@ public class CelestialObject : MonoBehaviour
 
     public void ReCalcSOI() {
         if (simTransform.TryGetSimComponent(out OrbitDriver orbitDriver))
-            SOIdistance = orbitDriver.orbit.periapsis * Math.Pow(mass / orbitDriver.orbit.parent.mass, 0.4);
+            SOIdistance = orbitDriver.orbits[0].periapsis * Math.Pow(mass / orbitDriver.orbits[0].parent.mass, 0.4);
         else SOIdistance = double.PositiveInfinity;
     }
 

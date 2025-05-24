@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ public class Orbit
     public double rightAscensionOfAscendingNode;
 
     public double startingTrueAnomaly;
+    public double endingTrueAnomaly;
 
     public CelestialObject parent;
 
@@ -73,6 +75,7 @@ public class Orbit
         eccentricity = _eccentricity;
         if (eccentricity == 1) eccentricity = 1.0000000001d;
         inclination = _inclination;
+        if (Mathd.Abs(inclination) < 1e-6d) inclination = 1e-6d;
         rightAscensionOfAscendingNode = _rightAscensionOfAscendingNode;
         argumentOfPeriapsis = _argumentOfPeriapsis;
         startingTrueAnomaly = _trueAnomaly;
@@ -160,8 +163,73 @@ public class Orbit
 
     public double GetTimeAtTrueAnomaly(double trueAnomaly) {
         double meanAnomaly = ConicMath.TrueAnomalyToMeanAnomaly(trueAnomaly, eccentricity);
+
+        if ((eccentricity >= 1) && ((meanAnomaly - meanAnomalyAtEpoch) < 0)) return double.PositiveInfinity;
+
+        else meanAnomaly -= meanAnomalyAtEpoch;
+
+        if (meanAnomaly < 0) meanAnomaly += 2 * Mathd.PI; // Not sure on the math here but if it checks out
+
         meanMotion = GetMeanMotionFromKeplerian(); // Just in case
-        return (meanAnomaly - meanAnomalyAtEpoch) / meanMotion;
+        return epoch + meanAnomaly / meanMotion;
+    }
+
+    public double GetTrueAnomalyAtTime(double _time) {
+        double meanAnomaly = meanAnomalyAtEpoch + (_time - epoch) * meanMotion;
+        if (eccentricity < 1.0) meanAnomaly = Mathd.IEEERemainder(meanAnomaly, 2.0 * Mathd.PI);
+
+        return ConicMath.MeanAnomalyToTrueAnomaly(meanAnomaly, eccentricity, startingTrueAnomaly);
+    }
+    
+    /// <summary>
+    /// <para>
+    /// Gets the first true anomaly, after periapsis, at a certain distance.
+    /// </para>
+    /// </summary>
+    /// <param name="distance"></param>
+    /// <returns>
+    /// -1 if doesn't exist
+    /// </returns>
+    /*
+        Uses a simple bisection algorithm
+    */
+    public double GetTrueAnomalyAtDistance(double _distance) {
+        if (_distance > apoapsis || _distance < periapsis) return -1;
+
+        double trueAnomalyGuess = (eccentricity >= 1)? endingTrueAnomaly : Mathd.PI;
+        double trueAnomalyStep = trueAnomalyGuess / 2d;
+        double distance = GetCartesianAtTrueAnomaly(trueAnomalyGuess).localPos.magnitude;
+        int itteration = 0;
+        int maxItterations = 50;
+
+        while (!double.IsFinite(distance) || ((Mathd.Abs(_distance - distance) > 1) && (itteration < maxItterations))){
+
+            if (distance > _distance) {
+                trueAnomalyGuess -= trueAnomalyStep;
+            }
+            else {
+                trueAnomalyGuess += trueAnomalyStep;
+            }
+            trueAnomalyStep *= 0.5d;
+            distance = GetCartesianAtTrueAnomaly(trueAnomalyGuess).localPos.magnitude;
+            itteration++;
+
+        }
+
+        return trueAnomalyGuess;
+    }
+
+    /// <summary>
+    /// MUST BE A SIBLING ORBIT!
+    /// </summary>
+    /// <param name="_other"></param>
+    /// <param name="_time"></param>
+    /// <returns></returns>
+    public double GetDistanceFromSiblingOrbitAtTime(Orbit _other, double _time) {
+        Vector3d thisPos = GetCartesianAtTime(_time).localPos;
+        Vector3d otherPos = _other.GetCartesianAtTime(_time).localPos;
+
+        return (thisPos - otherPos).magnitude;
     }
 
 
@@ -183,6 +251,7 @@ public class Orbit
         angularMomentum = angularMomentumVector.magnitude;
 
         inclination = Mathd.Acos(Mathd.Clamp((angularMomentumVector.y / angularMomentum), -1d, 1d)); // Acos must be between -1 and 1
+        if (Mathd.Abs(inclination) < 1e-6d) inclination = 1e-6d;
 
         Vector3d N = -Vector3d.Cross(new(0, 1, 0), angularMomentumVector);
         double NMag = N.magnitude;
@@ -204,6 +273,14 @@ public class Orbit
         
         meanAnomalyAtEpoch = ConicMath.TrueAnomalyToMeanAnomaly(startingTrueAnomaly, eccentricity);
         epoch = 0; // TODO: link to UT
+        if (eccentricity < 1) endingTrueAnomaly = startingTrueAnomaly + 2 * Mathd.PI;
+        else {
+            endingTrueAnomaly = Mathd.Acos(-1 / eccentricity) * 0.99999d;
+            startingTrueAnomaly = -Mathd.Acos(-1 / eccentricity) * 0.99999d;
+        }
+
+        if (eccentricity >= 1) orbitEndTime = GetTimeAtTrueAnomaly(endingTrueAnomaly);
+        else orbitEndTime = epoch + period;
 
         semiMajorAxis = -parent.gravitationalParameter / (2 * (0.5 * velSqr - parent.gravitationalParameter / distance));
 

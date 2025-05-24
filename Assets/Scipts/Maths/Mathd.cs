@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 namespace UnityEngine {
     public struct Mathd {
         public const double PI = 3.141593d;
+        public const double Phi = 1.61803398875d;
         public const double G = 6.6743015e-11d;
         public const double Infinity = double.PositiveInfinity;
         public const double NegativeInfinity = double.NegativeInfinity;
