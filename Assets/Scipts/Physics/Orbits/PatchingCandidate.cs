@@ -14,13 +14,15 @@ namespace Orbits
 */
 [Serializable]
 public struct PatchingCandidate {
-    public Orbit orbit;
-    public double SOIdistance;
     public List<OrbitPoint> orbitRangeCrossingPoints;
-
-    public PatchingCandidate(Orbit _orbit, double _SOIdistance) {
+    public Orbit orbit;
+    public CelestialObject celestialObject;
+    public double SOIdistance;
+    
+    public PatchingCandidate(Orbit _orbit, CelestialObject _celestialObject) {
         orbit = _orbit;
-        SOIdistance = _SOIdistance;
+        celestialObject = _celestialObject;
+        SOIdistance = celestialObject.SOIdistance;
 
         orbitRangeCrossingPoints = new();
     }

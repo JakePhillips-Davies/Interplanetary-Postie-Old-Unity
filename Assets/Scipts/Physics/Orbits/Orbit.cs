@@ -272,11 +272,10 @@ public class Orbit
         if (Vector3d.Dot(pos / distance, vel) < 0) startingTrueAnomaly = 2 * Mathd.PI - startingTrueAnomaly;
         
         meanAnomalyAtEpoch = ConicMath.TrueAnomalyToMeanAnomaly(startingTrueAnomaly, eccentricity);
-        epoch = 0; // TODO: link to UT
         if (eccentricity < 1) endingTrueAnomaly = startingTrueAnomaly + 2 * Mathd.PI;
         else {
             endingTrueAnomaly = Mathd.Acos(-1 / eccentricity) * 0.99999d;
-            startingTrueAnomaly = -Mathd.Acos(-1 / eccentricity) * 0.99999d;
+            if (startingTrueAnomaly >= endingTrueAnomaly) startingTrueAnomaly -= 2 * Mathd.PI;
         }
 
         if (eccentricity >= 1) orbitEndTime = GetTimeAtTrueAnomaly(endingTrueAnomaly);
